@@ -41,14 +41,13 @@ class BoardModel:
 		self._grid_size = grid_size
 		self._number_of_pokemons = number_of_pokemons
 		self._game = UNEXPOSED * grid_size ** 2
-		self._pokemon_locations = BoardModel.generate_pokemons(self._grid_size, 
-			self._number_of_pokemons)
+
+		# Might need to make generate_pokemons static for it to work in the constructor class.
+		self._pokemon_locations = self.generate_pokemons()
 
 
 
-
-	@staticmethod
-	def generate_pokemons(grid_size, number_of_pokemons):
+	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
 
 	    Parameters:
@@ -59,10 +58,10 @@ class BoardModel:
 	        (tuple<int>): A tuple containing  indexes where the pokemons are
 	        created for the game string.
 	    """
-	    cell_count = grid_size ** 2
+	    cell_count = self._grid_size ** 2
 	    pokemon_locations = ()
 
-	    for _ in range(number_of_pokemons):
+	    for _ in range(self._number_of_pokemons):
 	        if len(pokemon_locations) >= cell_count:
 	            break
 	        index = random.randint(0, cell_count-1)
@@ -74,12 +73,11 @@ class BoardModel:
 
 	    return pokemon_locations
 
-	def parse_position(action, grid_size):
+	def parse_position(self, action):
 	    """resolve the action into its corresponding position.
 
 		    Parameters:
 		        action (str): The string containing the row (Cap) and column.
-		        grid_size (int): Size of game.
 
 		    Returns:
 		        (tuple<int, int>) : The row, column position of a cell in the game.
@@ -97,13 +95,13 @@ class BoardModel:
 	    x = ALPHA.find(row)
 	    y = int(column) - 1
 	    
-	    if x == -1 or not 0 <= y < grid_size:
+	    if x == -1 or not 0 <= y < self._grid_size:
 	        return None
 
 	    return x, y
 
 
-	def position_to_index(position, grid_size):
+	def position_to_index(self, position):
 		""" Converts a tuple type postion coordinate to the index of the same cell
 		in the game str
 		
@@ -115,10 +113,10 @@ class BoardModel:
 					index (int): The corresponding index of the position 
 					in the game string.
 		"""
-		return position[0] * grid_size + position[1]
+		return position[0] * self._grid_size + position[1]
 
 
-	def replace_character_at_index(game, index, character):
+	def replace_character_at_index(self, index, character):
 	    """A specified index in the game string at the specified index is replaced by
 	    a new character.
 
@@ -130,10 +128,10 @@ class BoardModel:
 		    Returns:
 		        (str): The updated game string.
 	    """
-	    return game[:index] + character + game[index + 1:]
+	    return self._game[:index] + character + self._game[index + 1:]
 
 
-	def flag_cell(game, index):
+	def flag_cell(self, index):
 	    """Toggle Flag on or off at selected index. If the selected index is already
 	        revealed, the game would return with no changes.
 
@@ -143,16 +141,16 @@ class BoardModel:
 		        Returns
 		            (str): The updated game string.
 	    """
-	    if game[index] == FLAG:
-	        game = replace_character_at_index(game, index, UNEXPOSED)
+	    if self._game[index] == FLAG:
+	        self._game = replace_character_at_index(self._game, index, UNEXPOSED)
 
-	    elif game[index] == UNEXPOSED:
-	        game = replace_character_at_index(game, index, FLAG)
+	    elif self._game[index] == UNEXPOSED:
+	        self._game = replace_character_at_index(self._game, index, FLAG)
 
-	    return game
+	    return self._game
 
 
-	def index_in_direction(index, grid_size, direction):
+	def index_in_direction(self, index, direction):
 	    """The index in the game string is updated by determining the
 	    adjacent cell given the direction.
 	    The index of the adjacent cell in the game is then calculated and returned.
@@ -168,8 +166,8 @@ class BoardModel:
 		        None: When given an invalid direction.
 	    """
 	    # convert index to row, col coordinate
-	    col = index % grid_size
-	    row = index // grid_size
+	    col = index % self._grid_size
+	    row = index // self._grid_size
 	    if RIGHT in direction:
 	        col += 1
 	    elif LEFT in direction:
@@ -179,12 +177,12 @@ class BoardModel:
 	        row -= 1
 	    elif DOWN in direction:
 	        row += 1
-	    if not (0 <= col < grid_size and 0 <= row < grid_size):
+	    if not (0 <= col < self._grid_size and 0 <= row < self._grid_size):
 	        return None
-	    return position_to_index((row, col), grid_size)
+	    return position_to_index((row, col), self._grid_size)
 
 
-	def big_fun_search(game, grid_size, pokemon_locations, index):
+	def big_fun_search(self, game, pokemon_locations, index):
 	 	"""Searching adjacent cells to see if there are any Pokemon"s present.
 	 	Find all cells which should be revealed when a cell is selected.
 	 	For cells which have a zero value (i.e. no neighbouring pokemons) all the cell"s
@@ -194,9 +192,6 @@ class BoardModel:
 	 	For cells which have a non-zero value (i.e. cells with neightbour pokemons), only
 	 	the cell itself is revealed.
 		 	Parameters:
-		 		game (str): Game string.
-		 		grid_size (int): Size of game.
-		 		pokemon_locations (tuple<int, ...>): Tuple of all Pokemon's locations.
 		 		index (int): Index of the currently selected cell
 
 		 	Returns:
@@ -209,31 +204,31 @@ class BoardModel:
 	 	if game[index] == FLAG:
 	 		return queue
 
-	 	number = number_at_cell(game, pokemon_locations, grid_size, index)
+	 	number = number_at_cell(game, self._pokemon_locations, self._grid_size, index)
 	 	if number != 0:
 	 		return queue
 
 	 	while queue:
 	 		node = queue.pop()
-	 		for neighbour in neighbour_directions(node, grid_size):
+	 		for neighbour in neighbour_directions(node, self._grid_size):
 	 			if neighbour in discovered or neighbour is None:
 	 				continue
 
 	 			discovered.append(neighbour)
 	 			if game[neighbour] != FLAG:
-	 				number = number_at_cell(game, pokemon_locations, grid_size, neighbour)
+	 				number = number_at_cell(self._game, self._pokemon_locations, 
+	 					self._grid_size, neighbour)
 	 				if number == 0:
 	 					queue.append(neighbour)
 	 			visible.append(neighbour)
 	 	return visible
 
 
-	def neighbour_directions(index, grid_size):
+	def neighbour_directions(self, index):
 		"""This function returns a list of indexes that are a neighbour of the specified cell.
 
 			Parameters:
 				index (int): The index of the specified cell in the game str
-				grid_size (int): The size of the grid (width and height)
 
 			Returns:
 				([int, ...]): Array of integers corresponding to game indexes that contain
@@ -242,63 +237,57 @@ class BoardModel:
 		neighbours = []
 
 		for direction in DIRECTIONS:
-			neighbour = index_in_direction(index, grid_size, direction)
+			neighbour = index_in_direction(index, self._grid_size, direction)
 			if neighbour != None: neighbours += [neighbour,]
 
 		return neighbours
 
 
-	def number_at_cell(game, pokemon_locations, grid_size, index):
+	def number_at_cell(self, index):
 		"""This function returns the number of Pokemon in neighbouring cells.
 
 			Parameters:
 				index (int): The index of the specified cell in the game str
-				grid_size (int): The size of the grid (width and height)
-				pokemon_locations (tuple<str, ...>): Contains indexes of game[] that correspond
-				to the position of pokemon.
-				game (str): Game string.
 
 			Returns:
 				(int): number of pokemon in the neighboring cells
 		"""
 		# Adds one for every neighbouring cell if the neighbouring cell is a pokemon, returns the total.
-		return sum(1 for neighbour in neighbour_directions(index, grid_size) if neighbour in pokemon_locations)
+		return sum(1 for neighbour in neighbour_directions(index, self._grid_size) \
+			if neighbour in self._pokemon_locations)
 
 
-	def check_win(game, pokemon_locations):
+	def check_win(self):
 	    """Checking if the player has won the game.
-
-		    Parameters:
-		        game (str): Game string.
-		        pokemon_locations (tuple<int, ...>): Tuple of all Pokemon's locations.
 
 		    Returns:
 		        (bool): True if the player has won the game, false if not.
 	    """
-	    return UNEXPOSED not in game and game.count(FLAG) == len(pokemon_locations)
+	    return UNEXPOSED not in self._game and self._game.count(FLAG) == len(self._pokemon_locations)
 
 
 	def __repr__(self):
 		""" Print most important variables to console for debugging"""
-		pass
+		print(f"grid_size = {self._grid_size}\nnumber_of_pokemons = {self._number_of_pokemons}\n\
+			game string = {self._game}\npokemon_locations = {self._pokemon_locations}")
 
 	def __str__(self):
 		""" Prints game_board as a string (display_game from a1.py)"""
-	    row_separator = '\n' + WALL_HORIZONTAL * (grid_size + 1) * 4
+	    row_separator = '\n' + WALL_HORIZONTAL * (self._grid_size + 1) * 4
 
 	    # column headings
 	    first_row = f"  {WALL_VERTICAL}"
-	    for i in range(1, grid_size + 1):
+	    for i in range(1, self._grid_size + 1):
 	        # python magic: string format alignment
 	        first_row += f" {i:<2}{WALL_VERTICAL}"
 
 	    game_board = first_row + row_separator
 
 	    # Game Grid
-	    for i in range(grid_size):
+	    for i in range(self._grid_size):
 	        row = f"{ALPHA[i]} "
-	        for j in range(grid_size):
-	            char = game[position_to_index((i, j), grid_size)]
+	        for j in range(self._grid_size):
+	            char = game[position_to_index((i, j), self._grid_size)]
 	            row += f"{WALL_VERTICAL} {char} "
 
 	        game_board += "\n" + row + WALL_VERTICAL
