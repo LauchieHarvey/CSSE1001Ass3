@@ -2,7 +2,10 @@
 import random
 import tkinter as tk
 
-# CONSTANTS
+# Constants you may wish to change:
+GRID_SIZE = 6
+NUMBER_OF_POKEMONS = 7
+# CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
 DOWN = "down"
@@ -17,13 +20,7 @@ POKEMON = "☺"
 FLAG = "♥"
 UNEXPOSED = "~"
 EXPOSED = "0"
-INVALID = "That ain't a valid action buddy."
-HELP_TEXT = """h - Help.
-<Uppercase Letter><number> - Selecting a cell (e.g. 'A1')
-f <Uppercase Letter><number> - Placing flag at cell (e.g. 'f A1')
-:) - Restart game.
-q - Quit.
-"""
+
 
 TASK_ONE = "task_one"
 
@@ -54,6 +51,8 @@ class BoardModel:
 		self._pokemon_locations = self.generate_pokemons()
 
 
+	def get_game(self):
+		return self._game
 
 	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
@@ -132,11 +131,8 @@ class BoardModel:
 		        game (str): The game string.
 		        index (int): The index in the game string where the character is replaced.
 		        character (str): The new character that will be replacing the old character.
-
-		    Returns:
-		        (str): The updated game string.
 	    """
-	    return self._game[:index] + character + self._game[index + 1:]
+	    self._game = self._game[:index] + character + self._game[index + 1:]
 
 
 	def flag_cell(self, index):
@@ -146,16 +142,12 @@ class BoardModel:
 		        Parameters:
 		            game (str): The game string.
 		            index (int): The index in the game string where a flag is placed.
-		        Returns
-		            (str): The updated game string.
 	    """
 	    if self._game[index] == FLAG:
 	        self._game = replace_character_at_index(self._game, index, UNEXPOSED)
 
 	    elif self._game[index] == UNEXPOSED:
 	        self._game = replace_character_at_index(self._game, index, FLAG)
-
-	    return self._game
 
 
 	def index_in_direction(self, index, direction):
@@ -323,14 +315,27 @@ class BoardView(tk.Canvas):
 
 	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
 		"""Constructor method for the BoardView class"""
-		pass
+		self._master = master
+		self._grid_size = grid_size
+		self._board_width = 600
+		self._master.title("Pokemon: Got 2 Find Them All!")
+		self._master.geometry(f"{board_width}x{board_width}")
+
+		self._label = tk.Label(self._master, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
+		self._label.pack(side = tk.TOP, fill = "x")
+		# Make a canvas and draw the initial game state on it
+		self._canvas = tk.Canvas(self._master, bg = "green")
+		self._canvas.pack(expand = True, fill = "both")
+		# Define the event handlers for the canvas:
+		#self._canvas.bind("<Button-2>", self.???????EVENT HANDLER METHOD???????)
 
 	def draw_board(self, board):
 		""" Draws relevant shapes to the canvas based on representation of the game board.
 			First erases the canvas!
 	
 				Parameters:
-					board: A string representation of the game.
+					board: A string representation of the game. 
+					e.g. "10~♥1~☺~~" for a 3x3 grid.
 		"""
 		pass
 
@@ -347,11 +352,16 @@ class BoardView(tk.Canvas):
 
 
 def main():
-	GRID_SIZE = 6
-	NUMBER_OF_POKEMONS = 7
-	
+	""" 
+		Main function used to interact with the classes and
+		determine the flow of the programme.
+	"""
+
 	game_board = BoardModel(GRID_SIZE, NUMBER_OF_POKEMONS)
-	print(repr(game_board))
+
+	root = tk.Tk()
+	game_gui = BoardView(root, GRID_SIZE)
+	root.mainloop()
 
 
 if __name__ == "__main__":
