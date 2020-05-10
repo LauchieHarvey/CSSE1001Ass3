@@ -24,13 +24,19 @@ f <Uppercase Letter><number> - Placing flag at cell (e.g. 'f A1')
 :) - Restart game.
 q - Quit.
 """
+
+TASK_ONE = "task_one"
+
 # ^^^^ CONSTANTS ^^^^
 
 
 class PokemonGame:
-	""" Controller class for the pokemon game."""
+	""" 
+		Controller class for the pokemon game.
+		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
+	"""
 	
-	def __init__(self):
+	def __init__(self, grid_size, number_of_pokemons, task):
 		""" Constructor method for the PokemonGame class"""
 		pass
 
@@ -309,13 +315,33 @@ class BoardModel:
 
 
 
-class BoardView(tk.Frame):
-	""" View class that handles the graphical user interface for the programme."""
+class BoardView(tk.Canvas):
+	""" 
+		View class that handles the graphical user interface for the programme.
+		Instantiated like: BoardView(master, grid size, board width=600, *args, **kwargs)
+	"""
 
-	def __init__(self):
+	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
 		"""Constructor method for the BoardView class"""
 		pass
 
+	def draw_board(self, board):
+		""" Draws relevant shapes to the canvas based on representation of the game board.
+			First erases the canvas!
+	
+				Parameters:
+					board: A string representation of the game.
+		"""
+		pass
+
+	def get_bbox(self, pixel):
+		pass
+
+	def position_to_pixel(self, position):
+		pass
+
+	def pixel_to_position(self, pixel):
+		pass
 
 
 
