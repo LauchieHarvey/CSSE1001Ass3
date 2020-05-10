@@ -309,10 +309,10 @@ class BoardModel:
 
 
 
-class BoardView(tk):
+class BoardView(tk.Frame):
 	""" View class that handles the graphical user interface for the programme."""
 
-	def __init__():
+	def __init__(self):
 		"""Constructor method for the BoardView class"""
 		pass
 
