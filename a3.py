@@ -321,14 +321,14 @@ class BoardView(tk.Canvas):
 		self._master.title("Pokemon: Got 2 Find Them All!")
 		self._master.geometry(f"{board_width}x{board_width}")
 
+		# Window label heading
 		self._label = tk.Label(self._master, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
 		self._label.pack(side = tk.TOP, fill = "x")
 
 		# Make the canvas
 		self._canvas = tk.Canvas(self._master, bg = "green")
-		# Define the event handlers for the canvas:
-		#self._canvas.bind("<Button-2>", self.???????EVENT HANDLER METHOD???????)
 		self._canvas.pack(expand = True, fill = "both")
+
 		self.draw_board(UNEXPOSED * grid_size ** 2)
 
 	def draw_board(self, board):
@@ -341,12 +341,8 @@ class BoardView(tk.Canvas):
 		"""
 		# Clear canvas
 		self._canvas.delete("all")
-		# Update tkinter information so that winfo_height and winfo_width methods work.
-		self._master.update()
-
-		# Calculate the dynamic width of each rectangle.
-		rectangle_width = self._canvas.winfo_width() // self._grid_size
-		rectangle_height = self._canvas.winfo_height() // self._grid_size
+		
+		rectangle_width, rectangle_height = self.get_rect_dimensions() 
 
 		# Draw the rectangles to the canvas.
 		for row in range(self._grid_size):
@@ -360,11 +356,39 @@ class BoardView(tk.Canvas):
 	def get_bbox(self, pixel):
 		pass
 
+
+	def get_rect_dimensions(self):
+		"""Calculates and returns the dynamic width and height of each rectangle on the canvas
+			
+				Returns:
+					tuple<int, int>: Dynamic width, height of each rectangle on the canvas.
+		"""
+
+		# Update root information so that winfo_height and winfo_width methods work.
+		self._master.update()
+		rectangle_width = self._canvas.winfo_width() // self._grid_size
+		rectangle_height = self._canvas.winfo_height() // self._grid_size
+
+		return (rectangle_width, rectangle_height)
+
 	def position_to_pixel(self, position):
+		""" Returns the center pixel coordinate of the given rectangle position."""
+
+		# MAY NOT BE NEEDED
 		pass
 
 	def pixel_to_position(self, pixel):
-		pass
+		""" Converts a pixel tuple to the position of the rectangle that it is in
+
+				Parameters:
+					pixel (tuple<int, int>): The coordinate of the pixel on the canvas
+
+				Returns:
+					position (tuple<int, int>): The coordinate of the rectangle that 
+					the pixel is inside.
+		"""
+		rectangle_width, rectangle_height = self.get_rect_dimensions() 
+		return (pixel[0] // rectangle_width, pixel[1] // rectangle_height)
 
 
 
