@@ -1,5 +1,6 @@
 # Assignment 3. Pokemon, Got 2 Find Them All!
 import random
+import tkinter as tk
 
 # CONSTANTS
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -268,9 +269,15 @@ class BoardModel:
 
 
 	def __repr__(self):
-		"""Print most important variables to console for debugging"""
-		return f"grid_size = {self._grid_size}\nnumber_of_pokemons = {self._number_of_pokemons}\ngame string = \
-		{self._game}\npokemon_locations = {self._pokemon_locations}"
+		"""Returns most important variables for debugging purposes"""
+		representation = {
+		 f"grid_size = {self._grid_size}\n",
+		 f"number_of_pokemons = {self._number_of_pokemons}\n",
+		 f"game string = {self._game}\n",
+		 f"pokemon_locations = {self._pokemon_locations}\n"
+		}
+		# Returning instead of printing to follow convention.
+		return ''.join(representation)
 
 
 	def __str__(self):
@@ -302,7 +309,7 @@ class BoardModel:
 
 
 
-class BoardView:
+class BoardView(tk):
 	""" View class that handles the graphical user interface for the programme."""
 
 	def __init__():
@@ -318,7 +325,7 @@ def main():
 	NUMBER_OF_POKEMONS = 7
 	
 	game_board = BoardModel(GRID_SIZE, NUMBER_OF_POKEMONS)
-	print(str(game_board))
+	print(repr(game_board))
 
 
 if __name__ == "__main__":
