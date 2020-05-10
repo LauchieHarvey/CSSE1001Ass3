@@ -1,4 +1,5 @@
 # Assignment 3. Pokemon, Got 2 Find Them All!
+import random
 
 # CONSTANTS
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -50,13 +51,13 @@ class BoardModel:
 	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
 
-	    Parameters:
-	        grid_size (int): The grid size of the game.
-	        number_of_pokemons (int): The number of pokemons that the game will have.
+			    Parameters:
+			        grid_size (int): The grid size of the game.
+			        number_of_pokemons (int): The number of pokemons that the game will have.
 
-	    Returns:
-	        (tuple<int>): A tuple containing  indexes where the pokemons are
-	        created for the game string.
+			    Returns:
+			        (tuple<int>): A tuple containing  indexes where the pokemons are
+			        created for the game string.
 	    """
 	    cell_count = self._grid_size ** 2
 	    pokemon_locations = ()
@@ -76,13 +77,13 @@ class BoardModel:
 	def parse_position(self, action):
 	    """resolve the action into its corresponding position.
 
-		    Parameters:
-		        action (str): The string containing the row (Cap) and column.
+			    Parameters:
+			        action (str): The string containing the row (Cap) and column.
 
-		    Returns:
-		        (tuple<int, int>) : The row, column position of a cell in the game.
+			    Returns:
+			        (tuple<int, int>) : The row, column position of a cell in the game.
 
-		        None if the action is invalid.
+			        None if the action is invalid.
 	    """
 	    if len(action) < 2:
 	        return None
@@ -225,14 +226,14 @@ class BoardModel:
 
 
 	def neighbour_directions(self, index):
-		"""This function returns a list of indexes that are a neighbour of the specified cell.
+		""" This function returns a list of indexes that are a neighbour of the specified cell.
 
-			Parameters:
-				index (int): The index of the specified cell in the game str
+				Parameters:
+					index (int): The index of the specified cell in the game str
 
-			Returns:
-				([int, ...]): Array of integers corresponding to game indexes that contain
-				neighbouring cells.
+				Returns:
+					([int, ...]): Array of integers corresponding to game indexes that contain
+					neighbouring cells.
 		"""
 		neighbours = []
 
@@ -244,13 +245,13 @@ class BoardModel:
 
 
 	def number_at_cell(self, index):
-		"""This function returns the number of Pokemon in neighbouring cells.
+		""" This function returns the number of Pokemon in neighbouring cells.
 
-			Parameters:
-				index (int): The index of the specified cell in the game str
+				Parameters:
+					index (int): The index of the specified cell in the game str
 
-			Returns:
-				(int): number of pokemon in the neighboring cells
+				Returns:
+					(int): number of pokemon in the neighboring cells
 		"""
 		# Adds one for every neighbouring cell if the neighbouring cell is a pokemon, returns the total.
 		return sum(1 for neighbour in neighbour_directions(index, self._grid_size) \
@@ -258,42 +259,44 @@ class BoardModel:
 
 
 	def check_win(self):
-	    """Checking if the player has won the game.
+	    """ Checking if the player has won the game.
 
-		    Returns:
-		        (bool): True if the player has won the game, false if not.
+			    Returns:
+			        (bool): True if the player has won the game, false if not.
 	    """
 	    return UNEXPOSED not in self._game and self._game.count(FLAG) == len(self._pokemon_locations)
 
 
 	def __repr__(self):
-		""" Print most important variables to console for debugging"""
-		print(f"grid_size = {self._grid_size}\nnumber_of_pokemons = {self._number_of_pokemons}\n\
-			game string = {self._game}\npokemon_locations = {self._pokemon_locations}")
+		"""Print most important variables to console for debugging"""
+		return f"grid_size = {self._grid_size}\nnumber_of_pokemons = {self._number_of_pokemons}\ngame string = \
+		{self._game}\npokemon_locations = {self._pokemon_locations}"
+
 
 	def __str__(self):
-		""" Prints game_board as a string (display_game from a1.py)"""
-	    row_separator = '\n' + WALL_HORIZONTAL * (self._grid_size + 1) * 4
+		"""Returns game_board as a string (display_game from a1.py)"""
+		row_separator = '\n' + WALL_HORIZONTAL * (self._grid_size + 1) * 4
 
-	    # column headings
-	    first_row = f"  {WALL_VERTICAL}"
-	    for i in range(1, self._grid_size + 1):
-	        # python magic: string format alignment
-	        first_row += f" {i:<2}{WALL_VERTICAL}"
+		# column headings
+		first_row = f"  {WALL_VERTICAL}"
+		for i in range(1, self._grid_size + 1):
+		# python magic: string format alignment
+			first_row += f" {i:<2}{WALL_VERTICAL}"
 
-	    game_board = first_row + row_separator
+		game_board = first_row + row_separator
 
 	    # Game Grid
-	    for i in range(self._grid_size):
-	        row = f"{ALPHA[i]} "
-	        for j in range(self._grid_size):
-	            char = game[position_to_index((i, j), self._grid_size)]
-	            row += f"{WALL_VERTICAL} {char} "
+		for i in range(self._grid_size):
+			row = f"{ALPHA[i]} "
+			for j in range(self._grid_size):
+				char = self._game[self.position_to_index((i, j))]
+				row += f"{WALL_VERTICAL} {char} "
 
-	        game_board += "\n" + row + WALL_VERTICAL
-	        game_board += row_separator
+			game_board += "\n" + row + WALL_VERTICAL
+			game_board += row_separator
 
-	    print(game_board)
+		# Returning instead of printing because str() is a typically a type cast method.
+		return game_board
 
 
 
@@ -311,7 +314,12 @@ class BoardView:
 
 
 def main():
-	print("running")
+	GRID_SIZE = 6
+	NUMBER_OF_POKEMONS = 7
+	
+	game_board = BoardModel(GRID_SIZE, NUMBER_OF_POKEMONS)
+	print(str(game_board))
+
 
 if __name__ == "__main__":
 	main()
