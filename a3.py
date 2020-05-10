@@ -317,17 +317,19 @@ class BoardView(tk.Canvas):
 		"""Constructor method for the BoardView class"""
 		self._master = master
 		self._grid_size = grid_size
-		self._board_width = 600
+		self._board_width = board_width
 		self._master.title("Pokemon: Got 2 Find Them All!")
 		self._master.geometry(f"{board_width}x{board_width}")
 
 		self._label = tk.Label(self._master, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
 		self._label.pack(side = tk.TOP, fill = "x")
-		# Make a canvas and draw the initial game state on it
+
+		# Make the canvas
 		self._canvas = tk.Canvas(self._master, bg = "green")
-		self._canvas.pack(expand = True, fill = "both")
 		# Define the event handlers for the canvas:
 		#self._canvas.bind("<Button-2>", self.???????EVENT HANDLER METHOD???????)
+		self._canvas.pack(expand = True, fill = "both")
+		self.draw_board(UNEXPOSED * grid_size ** 2)
 
 	def draw_board(self, board):
 		""" Draws relevant shapes to the canvas based on representation of the game board.
@@ -337,7 +339,23 @@ class BoardView(tk.Canvas):
 					board: A string representation of the game. 
 					e.g. "10~♥1~☺~~" for a 3x3 grid.
 		"""
-		pass
+		# Clear canvas
+		self._canvas.delete("all")
+		# Update tkinter information so that winfo_height and winfo_width methods work.
+		self._master.update()
+
+		# Calculate the dynamic width of each rectangle.
+		rectangle_width = self._canvas.winfo_width() // self._grid_size
+		rectangle_height = self._canvas.winfo_height() // self._grid_size
+
+		# Draw the rectangles to the canvas.
+		for row in range(self._grid_size):
+			for col in range(self._grid_size):
+				self._canvas.create_rectangle(col * rectangle_width, row * rectangle_height,
+					(col + 1) * rectangle_width, (row + 1) * rectangle_height)
+
+
+
 
 	def get_bbox(self, pixel):
 		pass
