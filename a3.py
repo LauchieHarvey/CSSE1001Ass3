@@ -330,6 +330,7 @@ class BoardView(tk.Canvas):
 		self._canvas.pack(expand = True, fill = "both")
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
+	
 
 	def draw_board(self, board):
 		""" Draws relevant shapes to the canvas based on representation of the game board.
@@ -351,12 +352,6 @@ class BoardView(tk.Canvas):
 					(col + 1) * rectangle_width, (row + 1) * rectangle_height)
 
 
-
-
-	def get_bbox(self, pixel):
-		pass
-
-
 	def get_rect_dimensions(self):
 		"""Calculates and returns the dynamic width and height of each rectangle on the canvas
 			
@@ -371,11 +366,7 @@ class BoardView(tk.Canvas):
 
 		return (rectangle_width, rectangle_height)
 
-	def position_to_pixel(self, position):
-		""" Returns the center pixel coordinate of the given rectangle position."""
 
-		# MAY NOT BE NEEDED
-		pass
 
 	def pixel_to_position(self, pixel):
 		""" Converts a pixel tuple to the position of the rectangle that it is in
@@ -389,6 +380,17 @@ class BoardView(tk.Canvas):
 		"""
 		rectangle_width, rectangle_height = self.get_rect_dimensions() 
 		return (pixel[0] // rectangle_width, pixel[1] // rectangle_height)
+
+
+	def position_to_pixel(self, position):
+		""" Returns the center pixel coordinate of the given rectangle position."""
+
+		# MAY NOT BE NEEDED
+		pass
+
+
+	def get_bbox(self, pixel):
+		pass
 
 
 
