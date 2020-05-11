@@ -5,6 +5,7 @@ import tkinter as tk
 # Constants you may wish to change:
 GRID_SIZE = 6
 NUMBER_OF_POKEMONS = 7
+WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
@@ -33,9 +34,41 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 	
-	def __init__(self, grid_size, number_of_pokemons, task):
+	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_ONE):
 		""" Constructor method for the PokemonGame class"""
+		self._master = master
+		self._game_board = BoardModel(grid_size, number_of_pokemons)
+
+		self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
+		self.set_canvas_binds()
+
+
+
+	def set_canvas_binds(self):
+
+		self._canvas.bind("<Button-1>", self.left_click)
+		self._canvas.bind("<Button-2>", self.right_click)
+		self._canvas.bind("<Button-3>", self.right_click)
+
+	def left_click(self, event):
+		# Find the rectangle that was clicked
+		# convert the rectangle to a position
+		# check that the position isn't exposed yet
+		# Check whether there is a pokemon there or not
+		# If not, expose the cell
+		rect_clicked_position = self._canvas.pixel_to_position(event.x, event.y)
+		clicked_index = self._game_board.position_to_index(rect_clicked_position)
+		game_string = self._game_board.get_game()
+
+		if game_string[clicked_index] not in [POKEMON, FLAG]:
+			self._game_board.reveal_cells(clicked_index)
+
+
+		self._canvas.draw_board(self._game_board.get_game())
+
+	def right_click(event):
 		pass
+
 
 
 class BoardModel:
@@ -80,32 +113,6 @@ class BoardModel:
 
 	    return pokemon_locations
 
-	def parse_position(self, action):
-	    """resolve the action into its corresponding position.
-
-			    Parameters:
-			        action (str): The string containing the row (Cap) and column.
-
-			    Returns:
-			        (tuple<int, int>) : The row, column position of a cell in the game.
-
-			        None if the action is invalid.
-	    """
-	    if len(action) < 2:
-	        return None
-
-	    row, column = action[0], action[1:]
-
-	    if not column.isdigit():
-	        return None
-
-	    x = ALPHA.find(row)
-	    y = int(column) - 1
-	    
-	    if x == -1 or not 0 <= y < self._grid_size:
-	        return None
-
-	    return x, y
 
 
 	def position_to_index(self, position):
@@ -144,10 +151,10 @@ class BoardModel:
 		            index (int): The index in the game string where a flag is placed.
 	    """
 	    if self._game[index] == FLAG:
-	        self._game = replace_character_at_index(self._game, index, UNEXPOSED)
+	        self.replace_character_at_index(self._game, index, UNEXPOSED)
 
 	    elif self._game[index] == UNEXPOSED:
-	        self._game = replace_character_at_index(self._game, index, FLAG)
+	        self.replace_character_at_index(self._game, index, FLAG)
 
 
 	def index_in_direction(self, index, direction):
@@ -179,10 +186,10 @@ class BoardModel:
 	        row += 1
 	    if not (0 <= col < self._grid_size and 0 <= row < self._grid_size):
 	        return None
-	    return position_to_index((row, col), self._grid_size)
+	    return self.position_to_index((row, col))
 
 
-	def big_fun_search(self, game, pokemon_locations, index):
+	def big_fun_search(self, index):
 	 	"""Searching adjacent cells to see if there are any Pokemon"s present.
 	 	Find all cells which should be revealed when a cell is selected.
 	 	For cells which have a zero value (i.e. no neighbouring pokemons) all the cell"s
@@ -201,27 +208,45 @@ class BoardModel:
 	 	discovered = [index]
 	 	visible = [index]
 
-	 	if game[index] == FLAG:
+	 	if self._game[index] == FLAG:
 	 		return queue
 
-	 	number = number_at_cell(game, self._pokemon_locations, self._grid_size, index)
+	 	number = self.number_at_cell(index)
 	 	if number != 0:
 	 		return queue
 
 	 	while queue:
 	 		node = queue.pop()
-	 		for neighbour in neighbour_directions(node, self._grid_size):
+	 		for neighbour in self.neighbour_directions(node):
 	 			if neighbour in discovered or neighbour is None:
 	 				continue
 
 	 			discovered.append(neighbour)
-	 			if game[neighbour] != FLAG:
-	 				number = number_at_cell(self._game, self._pokemon_locations, 
-	 					self._grid_size, neighbour)
+	 			if self._game[neighbour] != FLAG:
+	 				number = self.number_at_cell(neighbour)
 	 				if number == 0:
 	 					queue.append(neighbour)
 	 			visible.append(neighbour)
 	 	return visible
+
+
+	def reveal_cells(self, index):
+	    """Reveals all neighbouring cells at index and repeats for all
+	    cells that had a 0.
+
+	    Does not reveal flagged cells or cells with Pokemon.
+
+	    Parameters:
+	        index (int): Index of the currently selected cell
+	    """
+	    number = self.number_at_cell(index)
+	    self.replace_character_at_index(index, str(number))
+	    clear = self.big_fun_search(index)
+	    for i in clear:
+	        if self._game[i] != FLAG:
+	            number = self.number_at_cell(i)
+	            self.replace_character_at_index(i, str(number))
+
 
 
 	def neighbour_directions(self, index):
@@ -237,7 +262,7 @@ class BoardModel:
 		neighbours = []
 
 		for direction in DIRECTIONS:
-			neighbour = index_in_direction(index, self._grid_size, direction)
+			neighbour = self.index_in_direction(index, direction)
 			if neighbour != None: neighbours += [neighbour,]
 
 		return neighbours
@@ -253,7 +278,7 @@ class BoardModel:
 					(int): number of pokemon in the neighboring cells
 		"""
 		# Adds one for every neighbouring cell if the neighbouring cell is a pokemon, returns the total.
-		return sum(1 for neighbour in neighbour_directions(index, self._grid_size) \
+		return sum(1 for neighbour in self.neighbour_directions(index) \
 			if neighbour in self._pokemon_locations)
 
 
@@ -318,19 +343,12 @@ class BoardView(tk.Canvas):
 		self._master = master
 		self._grid_size = grid_size
 		self._board_width = board_width
-		self._master.title("Pokemon: Got 2 Find Them All!")
-		self._master.geometry(f"{board_width}x{board_width}")
+		super().__init__(self._master, bg = "green")
+		self.pack(expand = True, fill = "both")
 
-		# Window label heading
-		self._label = tk.Label(self._master, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
-		self._label.pack(side = tk.TOP, fill = "x")
-
-		# Make the canvas
-		self._canvas = tk.Canvas(self._master, bg = "green")
-		self._canvas.pack(expand = True, fill = "both")
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
-	
+
 
 	def draw_board(self, board):
 		""" Draws relevant shapes to the canvas based on representation of the game board.
@@ -341,15 +359,29 @@ class BoardView(tk.Canvas):
 					e.g. "10~♥1~☺~~" for a 3x3 grid.
 		"""
 		# Clear canvas
-		self._canvas.delete("all")
+		self.delete("all")
 		
 		rectangle_width, rectangle_height = self.get_rect_dimensions() 
 
 		# Draw the rectangles to the canvas.
 		for row in range(self._grid_size):
 			for col in range(self._grid_size):
-				self._canvas.create_rectangle(col * rectangle_width, row * rectangle_height,
-					(col + 1) * rectangle_width, (row + 1) * rectangle_height)
+				index = self._grid_size * row + col
+
+				if board[index] == UNEXPOSED:
+					self.create_rectangle(col * rectangle_width, row * rectangle_height,
+						(col + 1) * rectangle_width, (row + 1) * rectangle_height)
+				elif board[index] == FLAG:
+					self.create_rectangle(col * rectangle_width, row * rectangle_height,
+						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "red")
+				elif board[index].isdigit():
+					self.create_rectangle(col * rectangle_width, row * rectangle_height,
+						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "lawn green")
+					# create label of board[index] number at center pixel of rectangle
+					self.create_text(self.position_to_pixel((row, col)), text = str(board[index]))
+				elif board[index] == POKEMON:
+					self.create_rectangle(col * rectangle_width, row * rectangle_height,
+						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "yellow")
 
 
 	def get_rect_dimensions(self):
@@ -358,17 +390,11 @@ class BoardView(tk.Canvas):
 				Returns:
 					tuple<int, int>: Dynamic width, height of each rectangle on the canvas.
 		"""
-
-		# Update root information so that winfo_height and winfo_width methods work.
-		self._master.update()
-		rectangle_width = self._canvas.winfo_width() // self._grid_size
-		rectangle_height = self._canvas.winfo_height() // self._grid_size
-
-		return (rectangle_width, rectangle_height)
+		return (self._board_width // self._grid_size, self._board_width // self._grid_size)
 
 
 
-	def pixel_to_position(self, pixel):
+	def pixel_to_position(self, pixel_x, pixel_y):
 		""" Converts a pixel tuple to the position of the rectangle that it is in
 
 				Parameters:
@@ -379,14 +405,17 @@ class BoardView(tk.Canvas):
 					the pixel is inside.
 		"""
 		rectangle_width, rectangle_height = self.get_rect_dimensions() 
-		return (pixel[0] // rectangle_width, pixel[1] // rectangle_height)
+		return (pixel_x // rectangle_width, pixel_y // rectangle_height)
 
 
 	def position_to_pixel(self, position):
 		""" Returns the center pixel coordinate of the given rectangle position."""
+		rect_width, rect_height = self.get_rect_dimensions()
+		top_left_pixel = (rect_width * position[0], rect_height * position[1])
 
-		# MAY NOT BE NEEDED
-		pass
+		center_pixel = (top_left_pixel[0] + rect_width / 2, top_left_pixel[1] + rect_height / 2)
+
+		return center_pixel
 
 
 	def get_bbox(self, pixel):
@@ -401,10 +430,14 @@ def main():
 		determine the flow of the programme.
 	"""
 
-	game_board = BoardModel(GRID_SIZE, NUMBER_OF_POKEMONS)
-
 	root = tk.Tk()
-	game_gui = BoardView(root, GRID_SIZE)
+	root.title("Pokemon: Got 2 Find Them All!")
+	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
+	# Window label heading
+	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
+	label.pack(side = tk.TOP, fill = "x")
+
+	game_gui = PokemonGame(root, GRID_SIZE, NUMBER_OF_POKEMONS)
 	root.mainloop()
 
 
