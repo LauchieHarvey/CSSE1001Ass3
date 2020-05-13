@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 # Constants you may wish to change:
-GRID_SIZE = 6
+GRID_SIZE = 10
 NUMBER_OF_POKEMONS = 7
 WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
@@ -89,6 +89,9 @@ class PokemonGame:
 		clicked_index = self._game_board.position_to_index(rect_clicked_position)
 
 		self._game_board.flag_cell(clicked_index)
+
+		if self._game_board.check_win():
+			PokemonGame.end_game(True)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
@@ -383,8 +386,12 @@ class BoardView(tk.Canvas):
 		self._master = master
 		self._grid_size = grid_size
 		self._board_width = board_width
-		super().__init__(self._master, bg = "green")
+
+		# Instantiate a canvas widget using superclass
+		super().__init__(self._master, bg = "green", width = board_width, height = board_width)
 		self.pack(expand = True, fill = "both")
+		# Resize root window to fit the whole canvas :)
+		master.geometry("")
 
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
