@@ -1,6 +1,7 @@
 # Assignment 3. Pokemon, Got 2 Find Them All!
 import random
 import tkinter as tk
+import tkinter.messagebox
 
 # Constants you may wish to change:
 GRID_SIZE = 6
@@ -58,9 +59,6 @@ class PokemonGame:
 					tkinter event, importantly the event.x and event.y variables
 					which are the coordinates of the mouse.
 		"""
-		# Check whether there is a pokemon there or not
-		# If not, expose the cell
-
 		# Convert mouse pixel position to rectangle position
 		rect_clicked_position = self._canvas.pixel_to_position(event.x, event.y)
 		# Convert the rectangle to the corresponding index in the game board.
@@ -76,13 +74,27 @@ class PokemonGame:
 				#User clicked on a pokemon, reveal all pokemon locations.
 				for pokemon_index in pokemon_locations:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
+				PokemonGame.end_game(False)
 
-		print(self._game_board.get_game())
+		if self._game_board.check_win():
+			PokemonGame.end_game(True)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
 	def right_click(event):
 		pass
+
+	@staticmethod
+	def end_game(won):
+		""" Shows the user the messagebox displaying either a win or a loss
+
+				Parameters:
+					won (bool): Whether the user won or lost (True if the user did win)
+		"""
+		if not won:
+			tk.messagebox.showerror(title="Ooopsie ;(", message = "Oh no! You scared away all the pokemons!")
+		else:
+			tk.messagebox.showinfo(title = "Congratulations!", message = "Congratulations, you won!!")
 
 
 
