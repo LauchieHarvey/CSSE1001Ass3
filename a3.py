@@ -51,18 +51,33 @@ class PokemonGame:
 		self._canvas.bind("<Button-3>", self.right_click)
 
 	def left_click(self, event):
-		# Find the rectangle that was clicked
-		# convert the rectangle to a position
-		# check that the position isn't exposed yet
+		""" Event handler for a left click on the canvas
+
+				Parameters:
+					event (obj): Instance containing information about the 
+					tkinter event, importantly the event.x and event.y variables
+					which are the coordinates of the mouse.
+		"""
 		# Check whether there is a pokemon there or not
 		# If not, expose the cell
+
+		# Convert mouse pixel position to rectangle position
 		rect_clicked_position = self._canvas.pixel_to_position(event.x, event.y)
+		# Convert the rectangle to the corresponding index in the game board.
 		clicked_index = self._game_board.position_to_index(rect_clicked_position)
+		
 		game_string = self._game_board.get_game()
+		pokemon_locations = self._game_board.get_pokemon_locations()
 
-		if game_string[clicked_index] not in [POKEMON, FLAG]:
-			self._game_board.reveal_cells(clicked_index)
+		if game_string[clicked_index] not in [FLAG, range(9)]:
+			if clicked_index not in pokemon_locations:
+				self._game_board.reveal_cells(clicked_index)
+			elif clicked_index in pokemon_locations:
+				#User clicked on a pokemon, reveal all pokemon locations.
+				for pokemon_index in pokemon_locations:
+					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
 
+		print(self._game_board.get_game())
 
 		self._canvas.draw_board(self._game_board.get_game())
 
@@ -85,7 +100,12 @@ class BoardModel:
 
 
 	def get_game(self):
+		"""Getter method for game 'private' variable"""
 		return self._game
+
+	def get_pokemon_locations(self):
+		"""Getter method for pokemon_locations 'private' variable"""
+		return self._pokemon_locations
 
 	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
@@ -402,16 +422,17 @@ class BoardView(tk.Canvas):
 
 				Returns:
 					position (tuple<int, int>): The coordinate of the rectangle that 
-					the pixel is inside.
+					the pixel is inside. In format: (row, col)
 		"""
 		rectangle_width, rectangle_height = self.get_rect_dimensions() 
-		return (pixel_x // rectangle_width, pixel_y // rectangle_height)
+		return (pixel_y // rectangle_height, pixel_x // rectangle_width)
 
 
 	def position_to_pixel(self, position):
 		""" Returns the center pixel coordinate of the given rectangle position."""
 		rect_width, rect_height = self.get_rect_dimensions()
-		top_left_pixel = (rect_width * position[0], rect_height * position[1])
+		# X coordinate determined by column (position[1]):
+		top_left_pixel = (rect_width * position[1], rect_height * position[0])
 
 		center_pixel = (top_left_pixel[0] + rect_width / 2, top_left_pixel[1] + rect_height / 2)
 
