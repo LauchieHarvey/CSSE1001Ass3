@@ -81,8 +81,16 @@ class PokemonGame:
 
 		self._canvas.draw_board(self._game_board.get_game())
 
-	def right_click(event):
-		pass
+
+	def right_click(self, event):
+		# Convert mouse pixel position to rectangle position
+		rect_clicked_position = self._canvas.pixel_to_position(event.x, event.y)
+		# Convert the rectangle to the corresponding index in the game board.
+		clicked_index = self._game_board.position_to_index(rect_clicked_position)
+
+		self._game_board.flag_cell(clicked_index)
+
+		self._canvas.draw_board(self._game_board.get_game())
 
 	@staticmethod
 	def end_game(won):
@@ -183,10 +191,10 @@ class BoardModel:
 		            index (int): The index in the game string where a flag is placed.
 	    """
 	    if self._game[index] == FLAG:
-	        self.replace_character_at_index(self._game, index, UNEXPOSED)
+	        self.replace_character_at_index(index, UNEXPOSED)
 
 	    elif self._game[index] == UNEXPOSED:
-	        self.replace_character_at_index(self._game, index, FLAG)
+	        self.replace_character_at_index(index, FLAG)
 
 
 	def index_in_direction(self, index, direction):
