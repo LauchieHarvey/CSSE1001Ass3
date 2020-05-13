@@ -46,10 +46,12 @@ class PokemonGame:
 
 
 	def set_canvas_binds(self):
-
+		""" Set event bindings for the canvas."""
 		self._canvas.bind("<Button-1>", self.left_click)
 		self._canvas.bind("<Button-2>", self.right_click)
 		self._canvas.bind("<Button-3>", self.right_click)
+
+		
 
 	def left_click(self, event):
 		""" Event handler for a left click on the canvas
@@ -96,13 +98,13 @@ class PokemonGame:
 		self._canvas.draw_board(self._game_board.get_game())
 
 	@staticmethod
-	def end_game(won):
+	def end_game(has_won):
 		""" Shows the user the messagebox displaying either a win or a loss
 
 				Parameters:
 					won (bool): Whether the user won or lost (True if the user did win)
 		"""
-		if not won:
+		if not has_won:
 			tk.messagebox.showerror(title="Ooopsie ;(", message = "Oh no! You scared away all the pokemons!")
 		else:
 			tk.messagebox.showinfo(title = "Congratulations!", message = "Congratulations, you won!!")
