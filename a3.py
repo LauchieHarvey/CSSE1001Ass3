@@ -25,6 +25,7 @@ EXPOSED = "0"
 
 
 TASK_ONE = "task_one"
+TASK_TWO = "task_two"
 
 # ^^^^ CONSTANTS ^^^^
 
@@ -51,7 +52,7 @@ class PokemonGame:
 		self._canvas.bind("<Button-2>", self.right_click)
 		self._canvas.bind("<Button-3>", self.right_click)
 
-		
+
 
 	def left_click(self, event):
 		""" Event handler for a left click on the canvas
@@ -76,15 +77,22 @@ class PokemonGame:
 				#User clicked on a pokemon, reveal all pokemon locations.
 				for pokemon_index in pokemon_locations:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
-				PokemonGame.end_game(False)
+				PokemonGame.end_game_message(False)
 
 		if self._game_board.check_win():
-			PokemonGame.end_game(True)
+			PokemonGame.end_game_message(True)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
 
 	def right_click(self, event):
+		""" Event handler for a right click on the canvas
+
+				Parameters:
+					event (obj): Instance containing information about the 
+					tkinter event, importantly the event.x and event.y variables
+					which are the coordinates of the mouse.
+		"""
 		# Convert mouse pixel position to rectangle position
 		rect_clicked_position = self._canvas.pixel_to_position(event.x, event.y)
 		# Convert the rectangle to the corresponding index in the game board.
@@ -93,12 +101,15 @@ class PokemonGame:
 		self._game_board.flag_cell(clicked_index)
 
 		if self._game_board.check_win():
-			PokemonGame.end_game(True)
+			# They have won so display win messagebox
+			PokemonGame.end_game_message(True)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
+
+
 	@staticmethod
-	def end_game(has_won):
+	def end_game_message(has_won):
 		""" Shows the user the messagebox displaying either a win or a loss
 
 				Parameters:
@@ -115,12 +126,17 @@ class BoardModel:
 	""" Model class that represents the board/game state as an object"""
 
 	def __init__(self, grid_size = 6, number_of_pokemons = 5):
-		"""Constructor method for the BooardModel class"""
+		"""Constructor method for the BooardModel class
+			
+				Parameters:
+					grid_size (int): The width of the game board.
+					number_of_pokemons (int): How many pokemon are hidden 
+					in the long and eerie grass.
+		"""
 		self._grid_size = grid_size
 		self._number_of_pokemons = number_of_pokemons
 		self._game = UNEXPOSED * grid_size ** 2
 
-		# Might need to make generate_pokemons static for it to work in the constructor class.
 		self._pokemon_locations = self.generate_pokemons()
 
 
@@ -166,11 +182,10 @@ class BoardModel:
 		
 				Parameters: 
 					position (tuple<int1, int2>): Tabular location of a given cell.
-					grid_size (int): The number of cells along each side of the grid.
 
 				Returns:
 					index (int): The corresponding index of the position 
-					in the game string.
+					in the object's game string.
 		"""
 		return position[0] * self._grid_size + position[1]
 
@@ -209,7 +224,6 @@ class BoardModel:
 
 		    Parameters:
 		        index (int): The index in the game string.
-		        grid_size (int): The grid size of the game.
 		        direction (str): The direction of the adjacent cell.
 
 		    Returns:
@@ -276,13 +290,13 @@ class BoardModel:
 
 
 	def reveal_cells(self, index):
-	    """Reveals all neighbouring cells at index and repeats for all
+	    """
+	    Reveals all neighbouring cells at index and repeats for all
 	    cells that had a 0.
-
 	    Does not reveal flagged cells or cells with Pokemon.
 
-	    Parameters:
-	        index (int): Index of the currently selected cell
+		    Parameters:
+		        index (int): Index of the currently selected cell
 	    """
 	    number = self.number_at_cell(index)
 	    self.replace_character_at_index(index, str(number))
@@ -384,17 +398,26 @@ class BoardView(tk.Canvas):
 	"""
 
 	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
-		"""Constructor method for the BoardView class"""
+		""" Constructor method for the BoardView class
+
+				Parameters:
+					master (tk object): The root window.
+					grid_size (int): The width of the game board.
+					board_width (int): The pixel size of the tk window.
+					args and kwargs: accepted so the caller can define any 
+					tk.Canvas attributes when calling this class.
+		"""
 		self._master = master
 		self._grid_size = grid_size
 		self._board_width = board_width
 
-		# Instantiate a canvas widget using superclass
-		super().__init__(self._master, bg = "green", width = board_width, height = board_width)
+		# Instantiate a canvas widget using the superclass
+		super().__init__(self._master, bg = "green", width = board_width,
+		 height = board_width, *args, **kwargs)
+
 		self.pack(expand = True, fill = "both")
 		# Resize root window to fit the whole canvas :)
 		master.geometry("")
-
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
 
@@ -458,7 +481,12 @@ class BoardView(tk.Canvas):
 
 
 	def position_to_pixel(self, position):
-		""" Returns the center pixel coordinate of the given rectangle position."""
+		""" Returns the center pixel coordinate of the given rectangle position.
+
+				Parameter:
+					position (tuple<int, int>): location of the rectangle on the game
+					board in the format (row, column)
+		"""
 		rect_width, rect_height = self.get_rect_dimensions()
 		# X coordinate determined by column (position[1]):
 		top_left_pixel = (rect_width * position[1], rect_height * position[0])
@@ -466,10 +494,6 @@ class BoardView(tk.Canvas):
 		center_pixel = (top_left_pixel[0] + rect_width / 2, top_left_pixel[1] + rect_height / 2)
 
 		return center_pixel
-
-
-	def get_bbox(self, pixel):
-		pass
 
 
 
