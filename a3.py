@@ -41,16 +41,30 @@ class PokemonGame:
 		self._master = master
 		self._game_board = BoardModel(grid_size, number_of_pokemons)
 
+		# Instantiate the widgets.
 		self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
-		self.set_canvas_binds()
+		self._status_bar = StatusBar(master)
+
+		# Position the widgets in the window.
+		self._canvas.pack(expand = True, fill = "both")
+		self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
+
+		# Resize root window to fit the whole canvas :)
+		master.geometry("")
+
+		self.set_binds()
 
 
 
-	def set_canvas_binds(self):
-		""" Set event bindings for the canvas."""
+	def set_binds(self):
+		""" Set event bindings for the widgets in the window."""
+		# Canvas binds:
 		self._canvas.bind("<Button-1>", self.left_click)
 		self._canvas.bind("<Button-2>", self.right_click)
 		self._canvas.bind("<Button-3>", self.right_click)
+
+		# Status Bar binds:
+		#Have to access a private variable here...
 
 
 
@@ -108,7 +122,6 @@ class PokemonGame:
 
 
 
-	@staticmethod
 	def end_game_message(has_won):
 		""" Shows the user the messagebox displaying either a win or a loss
 
@@ -119,6 +132,15 @@ class PokemonGame:
 			tk.messagebox.showerror(title="Ooopsie ;(", message = "Oh no! You scared away all the pokemons!")
 		else:
 			tk.messagebox.showinfo(title = "Congratulations!", message = "Congratulations, you won!!")
+
+
+	def create_new_game():
+		"""Event handler for "New Game" button click"""
+		pass
+
+	def restart_game():
+		"""Event handler for "Restart Game" button click"""
+		pass
 
 
 
@@ -389,8 +411,6 @@ class BoardModel:
 
 
 
-
-
 class BoardView(tk.Canvas):
 	""" 
 		View class that handles the graphical user interface for the programme.
@@ -414,10 +434,6 @@ class BoardView(tk.Canvas):
 		# Instantiate a canvas widget using the superclass
 		super().__init__(self._master, bg = "green", width = board_width,
 		 height = board_width, *args, **kwargs)
-
-		self.pack(expand = True, fill = "both")
-		# Resize root window to fit the whole canvas :)
-		master.geometry("")
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
 
@@ -495,6 +511,28 @@ class BoardView(tk.Canvas):
 
 		return center_pixel
 
+
+
+class StatusBar(tk.Frame):
+	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
+
+	def __init__(self, master, *args, **kwargs):
+		"""Constructor for the status bar frame
+
+				Parameters:
+					master (tk object): The root window.
+					args and kwargs: accepted so the caller can define any 
+					tk.Frame attributes when instantiating a StatusBar object.
+
+		"""
+		super().__init__(master, *args, **kwargs)
+
+		self._new_game_button = tk.Button(self, text = "New Game", command = PokemonGame.create_new_game)
+		self._new_game_button.pack(anchor = tk.E, side = tk.TOP)
+
+		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
+		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
+		#instantiate timer
 
 
 
