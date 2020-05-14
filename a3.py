@@ -2,6 +2,7 @@
 import random
 import tkinter as tk
 import tkinter.messagebox
+import time
 
 # Constants you may wish to change:
 GRID_SIZE = 10
@@ -530,6 +531,23 @@ class StatusBar(tk.Frame):
 		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
 		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
 		
+		# Instantiate timer
+		self._start_time = time.time()
+		self._time_label = tk.Label(self, text = "0m 0s")
+		self._time_label.pack()
+		self.update_label_time()
+
+
+	def update_label_time(self):
+		current_time = time.time()
+		elapsed_time = current_time - self._start_time
+		minutes = round(elapsed_time // 60)
+		seconds = round(elapsed_time % 60)
+		# Assign the calculated time to the label
+		self._time_label['text'] = f"{minutes}m {seconds}s"
+		self.after(1000, self.update_label_time)
+
+
 
 
 
