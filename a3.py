@@ -47,7 +47,7 @@ class PokemonGame:
 		self._canvas.pack(expand = True, fill = "both")
 
 		if task == TASK_TWO:
-			self._status_bar = StatusBar(master)
+			self._status_bar = StatusBar(master, number_of_pokemons)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
 
 		# Resize root window to fit all widgets.
@@ -114,7 +114,7 @@ class PokemonGame:
 
 		# Update the attempted catches status bar variable
 		if self._task == TASK_TWO:
-			self._status_bar.set_attempted_catches(self._game_board.get_attempted_catches())
+			self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
 
 		if self._game_board.check_win():
 			# They have won so display win messagebox
@@ -168,6 +168,10 @@ class BoardModel:
 	def get_game(self):
 		"""Getter method for game 'private' variable"""
 		return self._game
+
+	def get_number_of_pokemons(self):
+		"""Getter method for number of pokemons variabel"""
+		return self._number_of_pokemons
 
 	def get_pokemon_locations(self):
 		"""Getter method for pokemon_locations 'private' variable"""
@@ -526,7 +530,7 @@ class BoardView(tk.Canvas):
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
-	def __init__(self, master, *args, **kwargs):
+	def __init__(self, master, number_of_pokemons, *args, **kwargs):
 		"""Constructor for the status bar frame
 
 				Parameters:
@@ -536,6 +540,7 @@ class StatusBar(tk.Frame):
 
 		"""
 		super().__init__(master, *args, **kwargs)
+		self._number_of_pokemons = number_of_pokemons
 
 		self._new_game_button = tk.Button(self, text = "New Game", command = PokemonGame.create_new_game)
 		self._new_game_button.pack(anchor = tk.E, side = tk.TOP)
@@ -561,8 +566,14 @@ class StatusBar(tk.Frame):
 		pokeball_label.image = pokeball_image
 		pokeball_label.pack(anchor = tk.W)
 
+
+		# Attempted catches lable
 		self._attempted_catches_label = tk.Label(self, text = "0 attempted catches")
 		self._attempted_catches_label.pack()
+
+		# Pokeballs left label
+		self._pokeballs_left_label = tk.Label(self, text = f"{number_of_pokemons} pokeballs left")
+		self._pokeballs_left_label.pack()
 
 		# Set time to auto update in the status bar.
 		self._time_elapsed = 0
@@ -582,12 +593,14 @@ class StatusBar(tk.Frame):
 		self.after(1000, self.update_label_time)
 
 
-	def set_attempted_catches(self, attempted_catches):
-		"""Updates the attempted catches label
+	def set_pokeball_labels(self, attempted_catches):
+		"""Updates the "attempted catches" and "pokeballs left" labels
 				Parameters:
 					attempted_catches (int): the number of flags on the game board
 		"""
 		self._attempted_catches_label['text'] = f"{attempted_catches} attempted catches"
+		self._pokeballs_left_label['text'] = \
+		f"{self._number_of_pokemons - attempted_catches} pokeballs left"
 
 
 
