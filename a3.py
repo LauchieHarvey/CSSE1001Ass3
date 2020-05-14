@@ -36,35 +36,32 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 	
-	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_ONE):
+	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._game_board = BoardModel(grid_size, number_of_pokemons)
 
-		# Instantiate the widgets.
+		# Instantiate the canvas && position it in the master window.
 		self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
-		self._status_bar = StatusBar(master)
-
-		# Position the widgets in the window.
 		self._canvas.pack(expand = True, fill = "both")
-		self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
 
-		# Resize root window to fit the whole canvas :)
+		if task == TASK_TWO:
+			self._status_bar = StatusBar(master)
+			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
+
+		# Resize root window to fit all widgets.
 		master.geometry("")
 
-		self.set_binds()
+		self.set_canvas_binds()
 
 
 
-	def set_binds(self):
-		""" Set event bindings for the widgets in the window."""
-		# Canvas binds:
+	def set_canvas_binds(self):
+		""" Set event bindings for the canvas."""
 		self._canvas.bind("<Button-1>", self.left_click)
 		self._canvas.bind("<Button-2>", self.right_click)
 		self._canvas.bind("<Button-3>", self.right_click)
 
-		# Status Bar binds:
-		#Have to access a private variable here...
 
 
 
@@ -532,7 +529,7 @@ class StatusBar(tk.Frame):
 
 		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
 		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
-		#instantiate timer
+		
 
 
 
