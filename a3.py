@@ -614,7 +614,7 @@ def main():
 	root.title("Pokemon: Got 2 Find Them All!")
 	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
 	# Window label heading
-	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "pink")
+	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3", font = ('', 22), fg = 'white')
 	label.pack(side = tk.TOP, fill = "x")
 
 	game_gui = PokemonGame(root, GRID_SIZE, NUMBER_OF_POKEMONS)
