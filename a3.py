@@ -2,7 +2,6 @@
 import random
 import tkinter as tk
 import tkinter.messagebox
-import time
 
 # Constants you may wish to change:
 GRID_SIZE = 10
@@ -40,6 +39,7 @@ class PokemonGame:
 	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
+		self._task = task
 		self._game_board = BoardModel(grid_size, number_of_pokemons)
 
 		# Instantiate the canvas && position it in the master window.
@@ -112,6 +112,10 @@ class PokemonGame:
 
 		self._game_board.flag_cell(clicked_index)
 
+		# Update the attempted catches status bar variable
+		if self._task == TASK_TWO:
+			self._status_bar.set_attempted_catches(self._game_board.get_attempted_catches())
+
 		if self._game_board.check_win():
 			# They have won so display win messagebox
 			PokemonGame.end_game_message(True)
@@ -156,6 +160,7 @@ class BoardModel:
 		self._grid_size = grid_size
 		self._number_of_pokemons = number_of_pokemons
 		self._game = UNEXPOSED * grid_size ** 2
+		self._attempted_catches = 0
 
 		self._pokemon_locations = self.generate_pokemons()
 
@@ -167,6 +172,10 @@ class BoardModel:
 	def get_pokemon_locations(self):
 		"""Getter method for pokemon_locations 'private' variable"""
 		return self._pokemon_locations
+
+	def get_attempted_catches(self):
+		"""Getter method for the number of attempted catches (flagged cells)"""
+		return self._attempted_catches
 
 	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
@@ -225,6 +234,7 @@ class BoardModel:
 	def flag_cell(self, index):
 	    """Toggle Flag on or off at selected index. If the selected index is already
 	        revealed, the game would return with no changes.
+	        Updates the number of attempted catches.
 
 		        Parameters:
 		            game (str): The game string.
@@ -232,9 +242,11 @@ class BoardModel:
 	    """
 	    if self._game[index] == FLAG:
 	        self.replace_character_at_index(index, UNEXPOSED)
+	        self._attempted_catches -= 1
 
 	    elif self._game[index] == UNEXPOSED:
 	        self.replace_character_at_index(index, FLAG)
+	        self._attempted_catches += 1
 
 
 	def index_in_direction(self, index, direction):
@@ -531,10 +543,29 @@ class StatusBar(tk.Frame):
 		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
 		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
 		
-		# Instantiate timer
-		self._time_elapsed = 0
+		# Alarm clock image label
+		clock_image = tk.PhotoImage(file = "images/clock.gif")
+		alarm_clock_label = tk.Label(self, image = clock_image)
+		alarm_clock_label.image = clock_image
+		alarm_clock_label.pack()
+
+		time_elapsed_label = tk.Label(self, text = "Time elapsed")
+		time_elapsed_label.pack()
+
 		self._time_label = tk.Label(self, text = "0m 0s")
 		self._time_label.pack()
+
+		# Pokeball image label
+		pokeball_image = tk.PhotoImage(file = "images/full_pokeball.gif")
+		pokeball_label = tk.Label(self, image = pokeball_image)
+		pokeball_label.image = pokeball_image
+		pokeball_label.pack(anchor = tk.W)
+
+		self._attempted_catches_label = tk.Label(self, text = "0 attempted catches")
+		self._attempted_catches_label.pack()
+
+		# Set time to auto update in the status bar.
+		self._time_elapsed = 0
 		self.update_label_time()
 
 
@@ -551,6 +582,12 @@ class StatusBar(tk.Frame):
 		self.after(1000, self.update_label_time)
 
 
+	def set_attempted_catches(self, attempted_catches):
+		"""Updates the attempted catches label
+				Parameters:
+					attempted_catches (int): the number of flags on the game board
+		"""
+		self._attempted_catches_label['text'] = f"{attempted_catches} attempted catches"
 
 
 
