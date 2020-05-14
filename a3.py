@@ -532,19 +532,22 @@ class StatusBar(tk.Frame):
 		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
 		
 		# Instantiate timer
-		self._start_time = time.time()
+		self._time_elapsed = 0
 		self._time_label = tk.Label(self, text = "0m 0s")
 		self._time_label.pack()
 		self.update_label_time()
 
 
 	def update_label_time(self):
-		current_time = time.time()
-		elapsed_time = current_time - self._start_time
-		minutes = round(elapsed_time // 60)
-		seconds = round(elapsed_time % 60)
+		""" Updates the time and displays it in the status bar"""
+		self._time_elapsed += 1
+		minutes = round(self._time_elapsed // 60)
+		seconds = round(self._time_elapsed % 60)
+
 		# Assign the calculated time to the label
 		self._time_label['text'] = f"{minutes}m {seconds}s"
+
+		# Call this function after 1 second to update the time again.
 		self.after(1000, self.update_label_time)
 
 
