@@ -26,8 +26,30 @@ EXPOSED = "0"
 
 TASK_ONE = "task_one"
 TASK_TWO = "task_two"
+def define_images():
+	""" Globally declares images in a dictionary"""
+	global IMAGES
+	IMAGES = {
+	'0' : tk.PhotoImage(file = "images/zero_adjacent.gif"),
+	'1' : tk.PhotoImage(file = "images/one_adjacent.gif"),
+	'2' : tk.PhotoImage(file = "images/two_adjacent.gif"),
+	'3' : tk.PhotoImage(file = "images/three_adjacent.gif"),
+	'4' : tk.PhotoImage(file = "images/four_adjacent.gif"),
+	'5' : tk.PhotoImage(file = "images/five_adjacent.gif"),
+	'6' : tk.PhotoImage(file = "images/six_adjacent.gif"),
+	'7' : tk.PhotoImage(file = "images/seven_adjacent.gif"),
+	'8' : tk.PhotoImage(file = "images/eight_adjacent.gif"),
+	"unexposed" : tk.PhotoImage(file = "images/unrevealed.gif"),
+	"pokeball" : tk.PhotoImage(file = "images/pokeball.gif"),
+	"pokemon" : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif")
+	}
+
 
 # ^^^^ CONSTANTS ^^^^
+
+
+
+
 
 
 class PokemonGame:
@@ -42,13 +64,16 @@ class PokemonGame:
 		self._task = task
 		self._game_board = BoardModel(grid_size, number_of_pokemons)
 
-		# Instantiate the canvas && position it in the master window.
-		self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
-		self._canvas.pack(expand = True, fill = "both")
 
 		if task == TASK_TWO:
 			self._status_bar = StatusBar(master, self, number_of_pokemons)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
+			self._canvas = ImageBoardView(self._master, grid_size, WINDOW_SIZE)
+		else:
+			# Instantiate the canvas && position it in the master window.
+			self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
+		
+		self._canvas.pack(expand = True, fill = "both")
 
 		# Resize root window to fit all widgets.
 		master.geometry("")
@@ -150,10 +175,11 @@ class PokemonGame:
 
 	def restart_game(self):
 		"""Event handler for "Restart Game" button click"""
+		# Cache the current pokemon locations
 		pokemon_locations = self._game_board.get_pokemon_locations()
 		# Reset the game state
 		self.create_new_game()
-		# Set the locations back to what they were before.
+		# Set the pokemon locations back to the cached state.
 		self._game_board.set_pokemon_locations(pokemon_locations)
 
 
@@ -550,6 +576,54 @@ class BoardView(tk.Canvas):
 
 
 
+class ImageBoardView(BoardView):
+	"""Subclass of BoardView, the image canvas for task two"""
+
+	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
+		""" Constructor method for the ImageBoardView class
+
+				Parameters:
+					master (tk object): The root window.
+					grid_size (int): The width of the game board.
+					board_width (int): The pixel size of the tk window.
+					args and kwargs: accepted so the caller can define any 
+					tk.Canvas attributes when calling this class.
+		"""
+		super().__init__(master, grid_size, board_width, *args, **kwargs)
+
+
+	def draw_board(self, board):
+		""" Draws relevant shapes to the canvas based on representation of the game board.
+			First erases the canvas!
+	
+				Parameters:
+					board: A string representation of the game. 
+					e.g. "10~♥1~☺~~" for a 3x3 grid.
+		"""
+		# Clear canvas
+		self.delete("all")
+		
+		rectangle_width, rectangle_height = self.get_rect_dimensions() 
+
+		# Draw the images to the canvas.
+		for row in range(self._grid_size):
+			for col in range(self._grid_size):
+				index = self._grid_size * row + col
+				x, y = self.position_to_pixel((row, col))
+
+				if board[index] == UNEXPOSED:
+					self.create_image(x, y, image = IMAGES.get("unexposed"))
+
+				elif board[index] == FLAG:
+					self.create_image(x, y, image = IMAGES.get("pokeball"))
+
+				elif board[index].isdigit():
+					self.create_image(x, y, image = IMAGES.get(board[index]))
+
+				elif board[index] == POKEMON:
+					self.create_image(x, y, image = IMAGES.get("pokemon"))
+
+
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
@@ -638,6 +712,7 @@ class StatusBar(tk.Frame):
 		self._time_elapsed = 0
 
 
+
 def main():
 	""" 
 		Main function used to interact with the classes and
@@ -645,11 +720,14 @@ def main():
 	"""
 
 	root = tk.Tk()
+	define_images()
+
 	root.title("Pokemon: Got 2 Find Them All!")
 	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
 	# Window label heading
 	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3", font = ('', 22), fg = 'white')
 	label.pack(side = tk.TOP, fill = "x")
+
 
 	game_gui = PokemonGame(root, GRID_SIZE, NUMBER_OF_POKEMONS)
 	root.mainloop()
