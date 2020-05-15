@@ -204,7 +204,8 @@ class PokemonGame:
 		"""
 		# Get key values from BoardModel class as a list
 		game_variables = [self._game_board.get_game(), self._game_board.get_grid_size(),
-		self._game_board.get_number_of_pokemons(), self._game_board.get_pokemon_locations()]
+		self._game_board.get_number_of_pokemons(), self._game_board.get_attempted_catches(),
+		self._game_board.get_pokemon_locations()]
 
 		# While loop used to determine the name of the file :)
 		i = 0
@@ -222,28 +223,42 @@ class PokemonGame:
 
 
 	def load_game(self):
+		"""Loads a .csv file into the game. The file is assumed to be in the format give above"""
 
+		# Get the user to pick which file to load
 		file_name = tk.filedialog.askopenfilename(title = "Select a File",
 		 		filetypes = (("CSV files", "*.csv"),))
 
+		# If they picked a file type other than .csv then show error message and skip
 		if file_name is None:
 			tk.messagebox.showerror(title="Ooopsie ;(", message = "Please select a .csv file!!!")
 			return None
 
+		# Get values from the file
 		with open(file_name, mode = 'r') as file:
 			reader = csv.reader(file, delimiter = ',')
-			variables = [row for row in reader][0]
-			game_string = variables[0]
-			grid_size = int(variables[1])
-			num_of_pokemon = int(variables[2])
-			pokemon_locations = variables[3][1:-1].split(',')
-			pokemon_locations = [int(i) for i in pokemon_locations]
+			try:
+				variables = [row for row in reader][0]
+				game_string = variables[0]
+				grid_size = int(variables[1])
+				num_of_pokemon = int(variables[2])
+				attempted_catches = int(variables[3])
+				pokemon_locations = variables[4][1:-1].split(',')
+				pokemon_locations = [int(i) for i in pokemon_locations]
+			except:
+				tk.messagebox.showerror(title="Ooopsie ;(", message = "There appears to be something \
+					wrong with the file!!!")
+				return 0
 
-
-			self._game_board = BoardModel(grid_size, num_of_pokemon)
-			self._game_board.set_game_string(game_string)
-			self._game_board.set_pokemon_locations(pokemon_locations)
+		# Update the game to reflect the loaded file
+		self._game_board = BoardModel(grid_size, num_of_pokemon)
+		self._game_board.set_game_string(game_string)
+		self._game_board.set_pokemon_locations(pokemon_locations)
+		self._game_board.set_attempted_catches(attempted_catches)
+		self._status_bar.set_pokeball_labels(attempted_catches)
 		self._canvas.draw_board(self._game_board.get_game())
+		self._status_bar.reset_time()
+
 
 
 
@@ -297,6 +312,10 @@ class BoardModel:
 	def get_attempted_catches(self):
 		"""Getter method for the number of attempted catches (flagged cells)"""
 		return self._attempted_catches
+
+	def set_attempted_catches(self, attempted_catches):
+		"""Setter method for the attempted catches varaible (flagged cells)"""
+		self._attempted_catches = attempted_catches
 
 	def generate_pokemons(self):
 	    """Pokemons will be generated and given a random index within the game.
