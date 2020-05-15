@@ -5,6 +5,7 @@ import tkinter.messagebox
 import tkinter.filedialog
 import csv
 import os.path
+import random
 
 # Constants you may wish to change:
 GRID_SIZE = 10
@@ -48,9 +49,18 @@ def define_images():
 	'6' : tk.PhotoImage(file = "images/six_adjacent.gif"),
 	'7' : tk.PhotoImage(file = "images/seven_adjacent.gif"),
 	'8' : tk.PhotoImage(file = "images/eight_adjacent.gif"),
-	"unexposed" : tk.PhotoImage(file = "images/unrevealed.gif"),
-	"pokeball" : tk.PhotoImage(file = "images/pokeball.gif"),
-	"pokemon" : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif")
+	UNEXPOSED : tk.PhotoImage(file = "images/unrevealed.gif"),
+	FLAG : tk.PhotoImage(file = "images/pokeball.gif"),
+	}
+
+	global POKEMON_IMAGES
+	POKEMON_IMAGES = {
+	0 : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif"), 
+	1 :	tk.PhotoImage(file = "images/pokemon_sprites/cyndaquil.gif"),
+	2 : tk.PhotoImage(file = "images/pokemon_sprites/pikachu.gif"),
+	3 :	tk.PhotoImage(file = "images/pokemon_sprites/psyduck.gif"),
+	4 :	tk.PhotoImage(file = "images/pokemon_sprites/togepi.gif"),
+	5 :	tk.PhotoImage(file = "images/pokemon_sprites/umbreon.gif")
 	}
 
 # ^^^^ CONSTANTS ^^^^
@@ -248,7 +258,7 @@ class PokemonGame:
 			except:
 				tk.messagebox.showerror(title="Ooopsie ;(", message = "There appears to be something \
 					wrong with the file!!!")
-				return 0
+				return None
 
 		# Update the game to reflect the loaded file
 		self._game_board = BoardModel(grid_size, num_of_pokemon)
@@ -689,8 +699,6 @@ class ImageBoardView(BoardView):
 		"""
 		# Clear canvas
 		self.delete("all")
-		
-		rectangle_width, rectangle_height = self.get_rect_dimensions() 
 
 		# Draw the images to the canvas.
 		for row in range(self._grid_size):
@@ -698,17 +706,11 @@ class ImageBoardView(BoardView):
 				index = self._grid_size * row + col
 				x, y = self.position_to_pixel((row, col))
 
-				if board[index] == UNEXPOSED:
-					self.create_image(x, y, image = IMAGES.get("unexposed"))
-
-				elif board[index] == FLAG:
-					self.create_image(x, y, image = IMAGES.get("pokeball"))
-
-				elif board[index].isdigit():
+				if board[index] == POKEMON:
+					random_pokemon_img = POKEMON_IMAGES.get(random.randint(1, 5))
+					self.create_image(x, y, image = random_pokemon_img)
+				else:
 					self.create_image(x, y, image = IMAGES.get(board[index]))
-
-				elif board[index] == POKEMON:
-					self.create_image(x, y, image = IMAGES.get("pokemon"))
 
 
 
