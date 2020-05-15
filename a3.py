@@ -47,7 +47,7 @@ class PokemonGame:
 		self._canvas.pack(expand = True, fill = "both")
 
 		if task == TASK_TWO:
-			self._status_bar = StatusBar(master, number_of_pokemons)
+			self._status_bar = StatusBar(master, self, number_of_pokemons)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
 
 		# Resize root window to fit all widgets.
@@ -136,13 +136,25 @@ class PokemonGame:
 			tk.messagebox.showinfo(title = "Congratulations!", message = "Congratulations, you won!!")
 
 
-	def create_new_game():
+	def create_new_game(self):
 		"""Event handler for "New Game" button click"""
-		pass
+		grid_size = self._game_board.get_grid_size()
+		number_of_pokemons = self._game_board.get_number_of_pokemons()
+		# Reset the state of the game
+		self._game_board = BoardModel(grid_size, number_of_pokemons)
+		self._canvas.draw_board(self._game_board.get_game())
 
-	def restart_game():
+		# Reset status bar variables
+		self._status_bar.reset_time()
+		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
+
+	def restart_game(self):
 		"""Event handler for "Restart Game" button click"""
-		pass
+		pokemon_locations = self._game_board.get_pokemon_locations()
+		# Reset the game state
+		self.create_new_game()
+		# Set the locations back to what they were before.
+		self._game_board.set_pokemon_locations(pokemon_locations)
 
 
 
@@ -168,6 +180,9 @@ class BoardModel:
 	def get_game(self):
 		"""Getter method for game 'private' variable"""
 		return self._game
+	def get_grid_size(self):
+		"""Getter method for grid size private variable"""
+		return self._grid_size
 
 	def get_number_of_pokemons(self):
 		"""Getter method for number of pokemons variabel"""
@@ -176,6 +191,14 @@ class BoardModel:
 	def get_pokemon_locations(self):
 		"""Getter method for pokemon_locations 'private' variable"""
 		return self._pokemon_locations
+
+	def set_pokemon_locations(self, pokemon_locations):
+		"""Setter method for pokemon_locations, used when restarting game
+
+				Parameters:
+					pokemon_locations(list(int)): list of pokemon indexes.
+		"""
+		self._pokemon_locations = pokemon_locations
 
 	def get_attempted_catches(self):
 		"""Getter method for the number of attempted catches (flagged cells)"""
@@ -530,7 +553,7 @@ class BoardView(tk.Canvas):
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
-	def __init__(self, master, number_of_pokemons, *args, **kwargs):
+	def __init__(self, master, game_instance, number_of_pokemons, *args, **kwargs):
 		"""Constructor for the status bar frame
 
 				Parameters:
@@ -542,13 +565,16 @@ class StatusBar(tk.Frame):
 		"""
 		super().__init__(master, *args, **kwargs)
 		self._number_of_pokemons = number_of_pokemons
+		self._game_instance = game_instance
 
 		# New game button
-		self._new_game_button = tk.Button(self, text = "New Game", command = PokemonGame.create_new_game)
+		self._new_game_button = tk.Button(self, text = "New Game", 
+			command = self._game_instance.create_new_game)
 		self._new_game_button.grid(row = 0, column = 4, padx = 40, sticky = tk.E)
 
 		# Restart button
-		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
+		self._restart_game_button = tk.Button(self, text = "Restart Game", 
+			command = self._game_instance.restart_game)
 		self._restart_game_button.grid(row = 1, column = 4, padx = 40, sticky = tk.E)
 		
 		# Alarm clock image label
@@ -607,6 +633,9 @@ class StatusBar(tk.Frame):
 		self._pokeballs_left_label['text'] = \
 		f"{self._number_of_pokemons - attempted_catches} pokeballs left"
 
+	def reset_time(self):
+		""" Setter method for the time elapsed variable"""
+		self._time_elapsed = 0
 
 
 def main():
