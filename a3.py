@@ -535,6 +535,7 @@ class StatusBar(tk.Frame):
 
 				Parameters:
 					master (tk object): The root window.
+					number_of_pokemons(int): the number of hidden pokemons in the grass
 					args and kwargs: accepted so the caller can define any 
 					tk.Frame attributes when instantiating a StatusBar object.
 
@@ -542,9 +543,11 @@ class StatusBar(tk.Frame):
 		super().__init__(master, *args, **kwargs)
 		self._number_of_pokemons = number_of_pokemons
 
+		# New game button
 		self._new_game_button = tk.Button(self, text = "New Game", command = PokemonGame.create_new_game)
 		self._new_game_button.grid(row = 0, column = 4, padx = 40, sticky = tk.E)
 
+		# Restart button
 		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
 		self._restart_game_button.grid(row = 1, column = 4, padx = 40, sticky = tk.E)
 		
@@ -554,9 +557,11 @@ class StatusBar(tk.Frame):
 		alarm_clock_label.image = clock_image
 		alarm_clock_label.grid(row = 0, column = 2, rowspan = 2, padx = 15)
 
+		# Time elapsed lable
 		time_elapsed_label = tk.Label(self, text = "Time elapsed")
 		time_elapsed_label.grid(row = 0, column = 3)
 
+		# Time taken display label
 		self._time_label = tk.Label(self, text = "0m 0s")
 		self._time_label.grid(row = 1, column = 3)
 
