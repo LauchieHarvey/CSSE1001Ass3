@@ -6,7 +6,7 @@ import tkinter.messagebox
 # Constants you may wish to change:
 GRID_SIZE = 10
 NUMBER_OF_POKEMONS = 7
-WINDOW_SIZE = 600
+WINDOW_SIZE = 
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
@@ -26,8 +26,14 @@ EXPOSED = "0"
 
 TASK_ONE = "task_one"
 TASK_TWO = "task_two"
+
 def define_images():
-	""" Globally declares images in a dictionary"""
+	"""
+	 	Globally declares images in a dictionary
+		Tkinter needs a root window to be instantiated before you can access the 
+		PhotoImage class. This function allows the IMAGES dictionary to be public
+		and defined at the top of the file :)
+	"""
 	global IMAGES
 	IMAGES = {
 	'0' : tk.PhotoImage(file = "images/zero_adjacent.gif"),
@@ -43,7 +49,6 @@ def define_images():
 	"pokeball" : tk.PhotoImage(file = "images/pokeball.gif"),
 	"pokemon" : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif")
 	}
-
 
 # ^^^^ CONSTANTS ^^^^
 
