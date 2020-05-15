@@ -6,7 +6,7 @@ import tkinter.messagebox
 # Constants you may wish to change:
 GRID_SIZE = 10
 NUMBER_OF_POKEMONS = 7
-WINDOW_SIZE = 
+WINDOW_SIZE = 700
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
@@ -74,6 +74,8 @@ class PokemonGame:
 			self._status_bar = StatusBar(master, self, number_of_pokemons)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
 			self._canvas = ImageBoardView(self._master, grid_size, WINDOW_SIZE)
+			self._file_menu = FileMenu(self._master, self)
+
 		else:
 			# Instantiate the canvas && position it in the master window.
 			self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
@@ -629,6 +631,7 @@ class ImageBoardView(BoardView):
 					self.create_image(x, y, image = IMAGES.get("pokemon"))
 
 
+
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
@@ -717,6 +720,31 @@ class StatusBar(tk.Frame):
 		self._time_elapsed = 0
 
 
+
+class FileMenu(tk.Menu):
+	"""Inherits from tkinter Menu class, makes the file menu for the game"""
+	
+	def __init__(self, master, game):
+		""" Constructor method for the FileMenu class
+
+				Parameters:
+					master (tk object): The root window.
+					game (PokemonGame obj): An instance of the Pokemon Game class
+					so that the menu commands can be directed back to a method of
+					the PokemonGame class
+		"""
+		super().__init__(master)
+
+		file_menu = tk.Menu(self)
+		self.add_cascade(label = "File", menu = file_menu)
+
+		file_menu.add_command(label="Save Game")
+		file_menu.add_command(label="Load Game")
+		file_menu.add_command(label="Restart", command = game.restart_game)
+		file_menu.add_command(label="New Game", command = game.create_new_game)
+		file_menu.add_command(label="Quit ;(", command = exit)
+
+		master.config(menu = self)
 
 def main():
 	""" 
