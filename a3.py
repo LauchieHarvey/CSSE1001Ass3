@@ -2,6 +2,9 @@
 import random
 import tkinter as tk
 import tkinter.messagebox
+import tkinter.filedialog
+import csv
+import os.path
 
 # Constants you may wish to change:
 GRID_SIZE = 10
@@ -180,6 +183,7 @@ class PokemonGame:
 		self._status_bar.reset_time()
 		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
 
+
 	def restart_game(self):
 		"""Event handler for "Restart Game" button click"""
 		# Cache the current pokemon locations
@@ -188,6 +192,58 @@ class PokemonGame:
 		self.create_new_game()
 		# Set the pokemon locations back to the cached state.
 		self._game_board.set_pokemon_locations(pokemon_locations)
+
+
+	def save_game(self):
+		""" Saves the current instance of the PokemonGame class as a .csv file
+		
+		.csv file is saved in the order below:
+			game_board_string, grid_size, number_of_pokemons, pokemon_locations 
+		for example, a .csv might look like:
+			101♥~~101,3,3,"(3, 4, 5)"
+		"""
+		# Get key values from BoardModel class as a list
+		game_variables = [self._game_board.get_game(), self._game_board.get_grid_size(),
+		self._game_board.get_number_of_pokemons(), self._game_board.get_pokemon_locations()]
+
+		# While loop used to determine the name of the file :)
+		i = 0
+		while os.path.isfile(f"saved_game{i}.csv"):
+			i += 1
+		else:
+			file_name = f"saved_game{i}.csv"
+
+		
+		# Open a .csv with an appropriate name in write mode
+		with open(file_name, mode='w') as file:
+			writer = csv.writer(file, delimiter = ',')
+			# Write the key values to the .csv file.
+			writer.writerow(game_variables)
+
+
+	def load_game(self):
+
+		file_name = tk.filedialog.askopenfilename(title = "Select a File",
+		 		filetypes = (("CSV files", "*.csv"),))
+
+		if file_name is None:
+			tk.messagebox.showerror(title="Ooopsie ;(", message = "Please select a .csv file!!!")
+			return None
+
+		with open(file_name, mode = 'r') as file:
+			reader = csv.reader(file, delimiter = ',')
+			variables = [row for row in reader][0]
+			game_string = variables[0]
+			grid_size = int(variables[1])
+			num_of_pokemon = int(variables[2])
+			pokemon_locations = variables[3][1:-1].split(',')
+			pokemon_locations = [int(i) for i in pokemon_locations]
+
+
+			self._game_board = BoardModel(grid_size, num_of_pokemon)
+			self._game_board.set_game_string(game_string)
+			self._game_board.set_pokemon_locations(pokemon_locations)
+		self._canvas.draw_board(self._game_board.get_game())
 
 
 
@@ -232,6 +288,11 @@ class BoardModel:
 					pokemon_locations(list(int)): list of pokemon indexes.
 		"""
 		self._pokemon_locations = pokemon_locations
+
+	def set_game_string(self, game_string):
+		"""Setter method for the game string"""
+		self._game = game_string
+
 
 	def get_attempted_catches(self):
 		"""Getter method for the number of attempted catches (flagged cells)"""
@@ -443,14 +504,14 @@ class BoardModel:
 
 
 	def __repr__(self):
-		"""Returns most important variables for debugging purposes"""
-		representation = {
+		"""Returns most important variables for debugging purposes and saving state"""
+		representation = [
 		 f"grid_size = {self._grid_size}\n",
 		 f"number_of_pokemons = {self._number_of_pokemons}\n",
 		 f"game string = {self._game}\n",
 		 f"pokemon_locations = {self._pokemon_locations}\n"
-		}
-		# Returning instead of printing to follow convention.
+		]
+
 		return ''.join(representation)
 
 
@@ -723,7 +784,7 @@ class StatusBar(tk.Frame):
 
 class FileMenu(tk.Menu):
 	"""Inherits from tkinter Menu class, makes the file menu for the game"""
-	
+
 	def __init__(self, master, game):
 		""" Constructor method for the FileMenu class
 
@@ -738,13 +799,15 @@ class FileMenu(tk.Menu):
 		file_menu = tk.Menu(self)
 		self.add_cascade(label = "File", menu = file_menu)
 
-		file_menu.add_command(label="Save Game")
-		file_menu.add_command(label="Load Game")
+		file_menu.add_command(label="Save Game", command = game.save_game)
+		file_menu.add_command(label="Load Game", command = game.load_game)
 		file_menu.add_command(label="Restart", command = game.restart_game)
 		file_menu.add_command(label="New Game", command = game.create_new_game)
 		file_menu.add_command(label="Quit ;(", command = exit)
 
 		master.config(menu = self)
+
+
 
 def main():
 	""" 
