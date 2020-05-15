@@ -543,37 +543,37 @@ class StatusBar(tk.Frame):
 		self._number_of_pokemons = number_of_pokemons
 
 		self._new_game_button = tk.Button(self, text = "New Game", command = PokemonGame.create_new_game)
-		self._new_game_button.pack(anchor = tk.E, side = tk.TOP)
+		self._new_game_button.grid(row = 0, column = 4, padx = 40, sticky = tk.E)
 
 		self._restart_game_button = tk.Button(self, text = "Restart Game", command = PokemonGame.restart_game)
-		self._restart_game_button.pack(anchor = tk.E, side = tk.BOTTOM)
+		self._restart_game_button.grid(row = 1, column = 4, padx = 40, sticky = tk.E)
 		
 		# Alarm clock image label
 		clock_image = tk.PhotoImage(file = "images/clock.gif")
 		alarm_clock_label = tk.Label(self, image = clock_image)
 		alarm_clock_label.image = clock_image
-		alarm_clock_label.pack()
+		alarm_clock_label.grid(row = 0, column = 2, rowspan = 2, padx = 15)
 
 		time_elapsed_label = tk.Label(self, text = "Time elapsed")
-		time_elapsed_label.pack()
+		time_elapsed_label.grid(row = 0, column = 3)
 
 		self._time_label = tk.Label(self, text = "0m 0s")
-		self._time_label.pack()
+		self._time_label.grid(row = 1, column = 3)
 
 		# Pokeball image label
 		pokeball_image = tk.PhotoImage(file = "images/full_pokeball.gif")
 		pokeball_label = tk.Label(self, image = pokeball_image)
 		pokeball_label.image = pokeball_image
-		pokeball_label.pack(anchor = tk.W)
+		pokeball_label.grid(row = 0, column = 0, rowspan = 2, padx = 15)
 
 
 		# Attempted catches lable
 		self._attempted_catches_label = tk.Label(self, text = "0 attempted catches")
-		self._attempted_catches_label.pack()
+		self._attempted_catches_label.grid(row = 0, column = 1, sticky = tk.W)
 
 		# Pokeballs left label
 		self._pokeballs_left_label = tk.Label(self, text = f"{number_of_pokemons} pokeballs left")
-		self._pokeballs_left_label.pack()
+		self._pokeballs_left_label.grid(row = 1, column = 1, sticky = tk.W)
 
 		# Set time to auto update in the status bar.
 		self._time_elapsed = 0
