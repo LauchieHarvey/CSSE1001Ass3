@@ -84,9 +84,12 @@ class PokemonGame:
 
 
 		if task == TASK_TWO:
+			# Instantiate the Status Bar.
 			self._status_bar = StatusBar(master, self, number_of_pokemons)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
+			# Instantiate the canvas && position it in the master window.
 			self._canvas = ImageBoardView(self._master, grid_size, WINDOW_SIZE)
+			# Instantiate the file menu
 			self._file_menu = FileMenu(self._master, self)
 
 		else:
@@ -109,6 +112,14 @@ class PokemonGame:
 		self._canvas.bind("<Button-3>", self.right_click)
 
 
+	def handle_game_win(self):
+		"""Does everything required when the game has been won"""
+		if self._task == TASK_TWO:
+			# Stop the timer from updating
+			self._status_bar.set_time_running(False)
+
+		# Display the end game messagebox
+		PokemonGame.end_game_message(True)
 
 
 	def left_click(self, event):
@@ -136,10 +147,11 @@ class PokemonGame:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
 				PokemonGame.end_game_message(False)
 
-		if self._game_board.check_win():
-			PokemonGame.end_game_message(True)
-
 		self._canvas.draw_board(self._game_board.get_game())
+
+		if self._game_board.check_win():
+			self.handle_game_win()
+
 
 
 	def right_click(self, event):
@@ -161,11 +173,12 @@ class PokemonGame:
 		if self._task == TASK_TWO:
 			self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
 
-		if self._game_board.check_win():
-			# They have won so display win messagebox
-			PokemonGame.end_game_message(True)
-
 		self._canvas.draw_board(self._game_board.get_game())
+
+		if self._game_board.check_win():
+			self.handle_game_win()
+
+		
 
 
 
@@ -191,6 +204,7 @@ class PokemonGame:
 
 		# Reset status bar variables
 		self._status_bar.reset_time()
+		self._status_bar.set_time_running(True)
 		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
 
 
@@ -730,6 +744,7 @@ class StatusBar(tk.Frame):
 		super().__init__(master, *args, **kwargs)
 		self._number_of_pokemons = number_of_pokemons
 		self._game_instance = game_instance
+		self._time_running = True
 
 		# New game button
 		self._new_game_button = tk.Button(self, text = "New Game", 
@@ -775,8 +790,18 @@ class StatusBar(tk.Frame):
 		self.update_label_time()
 
 
+	def set_time_running(self, time_running):
+		"""Setter method for whether the timer is counting up or not"""
+		self._time_running = time_running
+		self.update_label_time()
+
+
 	def update_label_time(self):
-		""" Updates the time and displays it in the status bar"""
+		""" Updates the time and displays it in the status bar
+	
+				Parameter:
+					time_running(bool): When true the time will be updated every second.
+		"""
 		self._time_elapsed += 1
 		minutes = round(self._time_elapsed // 60)
 		seconds = round(self._time_elapsed % 60)
@@ -784,8 +809,9 @@ class StatusBar(tk.Frame):
 		# Assign the calculated time to the label
 		self._time_label['text'] = f"{minutes}m {seconds}s"
 
-		# Call this function after 1 second to update the time again.
-		self.after(1000, self.update_label_time)
+		if self._time_running:
+			# Call this function after 1 second to update the time again.
+			self.after(1000, self.update_label_time)
 
 
 	def set_pokeball_labels(self, attempted_catches):
