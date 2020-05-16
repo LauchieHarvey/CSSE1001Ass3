@@ -122,6 +122,13 @@ class PokemonGame:
 		self.end_game_message(True)
 
 
+	def verify_quit():
+		"""Prompts the user to verify that they want to quit, if so, quits"""
+		answer = tk.messagebox.askquestion(title = "Quit? ;(", message = "Are you sure you want to quit?")
+		if answer == "yes":
+			exit()
+
+
 	def left_click(self, event):
 		""" Event handler for a left click on the canvas
 
@@ -197,7 +204,7 @@ class PokemonGame:
 		if play_again == "yes":
 			self.create_new_game()
 		else:
-			exit()
+			PokemonGame.verify_quit()
 
 
 
@@ -289,6 +296,7 @@ class PokemonGame:
 		self._status_bar.set_pokeball_labels(attempted_catches)
 		self._canvas.draw_board(self._game_board.get_game())
 		self._status_bar.reset_time()
+		self._status_bar.set_time_running(True)
 
 
 
@@ -857,7 +865,7 @@ class FileMenu(tk.Menu):
 		file_menu.add_command(label="Load Game", command = game.load_game)
 		file_menu.add_command(label="Restart", command = game.restart_game)
 		file_menu.add_command(label="New Game", command = game.create_new_game)
-		file_menu.add_command(label="Quit ;(", command = exit)
+		file_menu.add_command(label="Quit ;(", command = PokemonGame.verify_quit)
 
 		master.config(menu = self)
 
