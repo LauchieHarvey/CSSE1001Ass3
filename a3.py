@@ -119,7 +119,7 @@ class PokemonGame:
 			self._status_bar.set_time_running(False)
 
 		# Display the end game messagebox
-		PokemonGame.end_game_message(True)
+		self.end_game_message(True)
 
 
 	def left_click(self, event):
@@ -145,7 +145,8 @@ class PokemonGame:
 				#User clicked on a pokemon, reveal all pokemon locations.
 				for pokemon_index in pokemon_locations:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
-				PokemonGame.end_game_message(False)
+				self._status_bar.set_time_running(False)
+				self.end_game_message(False)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
@@ -182,16 +183,22 @@ class PokemonGame:
 
 
 
-	def end_game_message(has_won):
+	def end_game_message(self, has_won):
 		""" Shows the user the messagebox displaying either a win or a loss
 
 				Parameters:
 					won (bool): Whether the user won or lost (True if the user did win)
 		"""
-		if not has_won:
-			tk.messagebox.showerror(title="Ooopsie ;(", message = "Oh no! You scared away all the pokemons!")
+		end_game_string = "Congratulations, you won!!" if has_won else "You lose!"
+		ask_play_again = "Would you like to play again?"
+		play_again = tk.messagebox.askquestion(title="Game Over!", 
+			message = f"{end_game_string} {ask_play_again}")
+
+		if play_again == "yes":
+			self.create_new_game()
 		else:
-			tk.messagebox.showinfo(title = "Congratulations!", message = "Congratulations, you won!!")
+			exit()
+
 
 
 	def create_new_game(self):
@@ -224,7 +231,7 @@ class PokemonGame:
 		.csv file is saved in the order below:
 			game_board_string, grid_size, number_of_pokemons, pokemon_locations 
 		for example, a .csv might look like:
-			101♥~~101,3,3,"(3, 4, 5)"
+			101♥~~101,3,3,"(3,4,5)"
 		"""
 		# Get key values from BoardModel class as a list
 		game_variables = [self._game_board.get_game(), self._game_board.get_grid_size(),
