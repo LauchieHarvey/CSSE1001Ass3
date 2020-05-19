@@ -121,6 +121,9 @@ class PokemonGame:
 				for pokemon_index in pokemon_locations:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
 
+				# Update the GUI before the end game message
+				self._canvas.draw_board(self._game_board.get_game())
+
 				if self._task == TASK_TWO:
 					self._status_bar.set_time_running(False)
 					self.end_game_message(False)
