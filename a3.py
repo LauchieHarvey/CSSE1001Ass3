@@ -44,7 +44,7 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 	
-	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_ONE):
+	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -266,7 +266,8 @@ class PokemonGame:
 		self._status_bar.set_pokeball_labels(attempted_catches)
 		self._canvas.draw_board(self._game_board.get_game())
 		self._status_bar.reset_time()
-		self._status_bar.set_time_running(True)
+		if not self._status_bar.get_time_running():
+			self._status_bar.set_time_running(True)
 
 
 
@@ -811,6 +812,11 @@ class StatusBar(tk.Frame):
 		# Set time to auto update in the status bar.
 		self._time_elapsed = 0
 		self.update_label_time()
+
+
+	def get_time_running(self):
+		"""Getter method for the time_running variable"""
+		return self._time_running
 
 
 	def set_time_running(self, time_running):
