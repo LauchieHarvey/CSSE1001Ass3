@@ -44,7 +44,7 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 	
-	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
+	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_ONE):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -85,9 +85,9 @@ class PokemonGame:
 		if self._task == TASK_TWO:
 			# Stop the timer from updating
 			self._status_bar.set_time_running(False)
+			# Display the end game messagebox
+			self.end_game_message(True)
 
-		# Display the end game messagebox
-		self.end_game_message(True)
 
 
 	def verify_quit():
@@ -120,8 +120,10 @@ class PokemonGame:
 				#User clicked on a pokemon, reveal all pokemon locations.
 				for pokemon_index in pokemon_locations:
 					self._game_board.replace_character_at_index(pokemon_index, POKEMON)
-				self._status_bar.set_time_running(False)
-				self.end_game_message(False)
+
+				if self._task == TASK_TWO:
+					self._status_bar.set_time_running(False)
+					self.end_game_message(False)
 
 		self._canvas.draw_board(self._game_board.get_game())
 
@@ -672,7 +674,6 @@ class BoardView(tk.Canvas):
 
 class ImageBoardView(BoardView):
 	"""Subclass of BoardView, the image canvas for task two"""
-
 
 	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
 		""" Constructor method for the ImageBoardView class
