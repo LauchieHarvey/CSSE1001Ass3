@@ -31,38 +31,6 @@ EXPOSED = "0"
 TASK_ONE = "task_one"
 TASK_TWO = "task_two"
 
-def define_images():
-	"""
-	 	Globally declares images in a dictionary
-		Tkinter needs a root window to be instantiated before you can access the 
-		PhotoImage class. This function allows the IMAGES dictionary to be public
-		and defined at the top of the file :)
-	"""
-	global IMAGES
-	IMAGES = {
-	'0' : tk.PhotoImage(file = "images/zero_adjacent.gif"),
-	'1' : tk.PhotoImage(file = "images/one_adjacent.gif"),
-	'2' : tk.PhotoImage(file = "images/two_adjacent.gif"),
-	'3' : tk.PhotoImage(file = "images/three_adjacent.gif"),
-	'4' : tk.PhotoImage(file = "images/four_adjacent.gif"),
-	'5' : tk.PhotoImage(file = "images/five_adjacent.gif"),
-	'6' : tk.PhotoImage(file = "images/six_adjacent.gif"),
-	'7' : tk.PhotoImage(file = "images/seven_adjacent.gif"),
-	'8' : tk.PhotoImage(file = "images/eight_adjacent.gif"),
-	UNEXPOSED : tk.PhotoImage(file = "images/unrevealed.gif"),
-	FLAG : tk.PhotoImage(file = "images/pokeball.gif"),
-	}
-
-	global POKEMON_IMAGES
-	POKEMON_IMAGES = {
-	0 : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif"), 
-	1 :	tk.PhotoImage(file = "images/pokemon_sprites/cyndaquil.gif"),
-	2 : tk.PhotoImage(file = "images/pokemon_sprites/pikachu.gif"),
-	3 :	tk.PhotoImage(file = "images/pokemon_sprites/psyduck.gif"),
-	4 :	tk.PhotoImage(file = "images/pokemon_sprites/togepi.gif"),
-	5 :	tk.PhotoImage(file = "images/pokemon_sprites/umbreon.gif")
-	}
-
 # ^^^^ CONSTANTS ^^^^
 
 
@@ -705,6 +673,7 @@ class BoardView(tk.Canvas):
 class ImageBoardView(BoardView):
 	"""Subclass of BoardView, the image canvas for task two"""
 
+
 	def __init__(self, master, grid_size, board_width = 600, *args, **kwargs):
 		""" Constructor method for the ImageBoardView class
 
@@ -715,7 +684,45 @@ class ImageBoardView(BoardView):
 					args and kwargs: accepted so the caller can define any 
 					tk.Canvas attributes when calling this class.
 		"""
+		self._IMAGES, self._POKEMON_IMAGES = ImageBoardView.instantiate_images()
 		super().__init__(master, grid_size, board_width, *args, **kwargs)
+
+		
+
+
+	@staticmethod
+	def instantiate_images():
+		"""Images need to be instantiated as a tkinter PhotoImage object before
+			they can be displayed on the window. This method does that and puts
+			the images into a dictionary for fast access.
+
+				Returns:
+					dict, dict: The dictionaries containing the images as
+					PhotoImage objects
+		"""
+		IMAGES = {
+			'0' : tk.PhotoImage(file = "images/zero_adjacent.gif"),
+			'1' : tk.PhotoImage(file = "images/one_adjacent.gif"),
+			'2' : tk.PhotoImage(file = "images/two_adjacent.gif"),
+			'3' : tk.PhotoImage(file = "images/three_adjacent.gif"),
+			'4' : tk.PhotoImage(file = "images/four_adjacent.gif"),
+			'5' : tk.PhotoImage(file = "images/five_adjacent.gif"),
+			'6' : tk.PhotoImage(file = "images/six_adjacent.gif"),
+			'7' : tk.PhotoImage(file = "images/seven_adjacent.gif"),
+			'8' : tk.PhotoImage(file = "images/eight_adjacent.gif"),
+			UNEXPOSED : tk.PhotoImage(file = "images/unrevealed.gif"),
+			FLAG : tk.PhotoImage(file = "images/pokeball.gif"),
+		}
+
+		POKEMON_IMAGES = {
+			0 : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif"), 
+			1 :	tk.PhotoImage(file = "images/pokemon_sprites/cyndaquil.gif"),
+			2 : tk.PhotoImage(file = "images/pokemon_sprites/pikachu.gif"),
+			3 :	tk.PhotoImage(file = "images/pokemon_sprites/psyduck.gif"),
+			4 :	tk.PhotoImage(file = "images/pokemon_sprites/togepi.gif"),
+			5 :	tk.PhotoImage(file = "images/pokemon_sprites/umbreon.gif")
+		}
+		return IMAGES, POKEMON_IMAGES
 
 
 	def draw_board(self, board):
@@ -736,10 +743,10 @@ class ImageBoardView(BoardView):
 				x, y = self.position_to_pixel((row, col))
 
 				if board[index] == POKEMON:
-					random_pokemon_img = POKEMON_IMAGES.get(random.randint(1, 5))
+					random_pokemon_img = self._POKEMON_IMAGES.get(random.randint(1, 5))
 					self.create_image(x, y, image = random_pokemon_img)
 				else:
-					self.create_image(x, y, image = IMAGES.get(board[index]))
+					self.create_image(x, y, image = self._IMAGES.get(board[index]))
 
 
 
@@ -878,7 +885,6 @@ def main():
 	"""
 
 	root = tk.Tk()
-	define_images()
 
 	root.title("Pokemon: Got 2 Find Them All!")
 	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
