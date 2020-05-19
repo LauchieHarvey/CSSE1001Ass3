@@ -6,11 +6,12 @@ import tkinter.filedialog
 import csv
 import os.path
 import random
+from PIL import ImageTk, Image
 
 # Constants you may wish to change:
-GRID_SIZE = 10
-NUMBER_OF_POKEMONS = 7
-WINDOW_SIZE = 700
+GRID_SIZE = 6
+NUMBER_OF_POKEMONS = 6
+WINDOW_SIZE = 200
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
@@ -31,6 +32,30 @@ EXPOSED = "0"
 TASK_ONE = "task_one"
 TASK_TWO = "task_two"
 
+
+IMAGES = {
+	'0' : "images/zero_adjacent.gif",
+	'1' : "images/one_adjacent.gif",
+	'2' : "images/two_adjacent.gif",
+	'3' : "images/three_adjacent.gif",
+	'4' : "images/four_adjacent.gif",
+	'5' : "images/five_adjacent.gif",
+	'6' : "images/six_adjacent.gif",
+	'7' : "images/seven_adjacent.gif",
+	'8' : "images/eight_adjacent.gif",
+	UNEXPOSED : "images/unrevealed.gif",
+	FLAG : "images/pokeball.gif",
+}
+
+POKEMON_IMAGES = {
+	0 : "images/pokemon_sprites/charizard.gif", 
+	1 :	"images/pokemon_sprites/cyndaquil.gif",
+	2 : "images/pokemon_sprites/pikachu.gif",
+	3 :	"images/pokemon_sprites/psyduck.gif",
+	4 :	"images/pokemon_sprites/togepi.gif",
+	5 :	"images/pokemon_sprites/umbreon.gif"
+}
+
 # ^^^^ CONSTANTS ^^^^
 
 
@@ -43,7 +68,8 @@ class PokemonGame:
 		Controller class for the pokemon game.
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
-	
+	# IF YOU ARE LOOKING TO CHANGE THE GRID_SIZE &/OR THE BOARD_WIDTH 
+	# LOOK AT THE CONSTANTS AT THE TOP OF THE FILE :)
 	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
@@ -64,7 +90,7 @@ class PokemonGame:
 			# Instantiate the canvas && position it in the master window.
 			self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
 		
-		self._canvas.pack(expand = True, fill = "both")
+		self._canvas.pack(expand = True, anchor = tk.CENTER,)
 
 		# Resize root window to fit all widgets.
 		master.geometry("")
@@ -641,6 +667,7 @@ class BoardView(tk.Canvas):
 				Returns:
 					tuple<int, int>: Dynamic width, height of each rectangle on the canvas.
 		"""
+		# Left like this so that it can easily be adjusted in future to support non-square boards
 		return (self._board_width // self._grid_size, self._board_width // self._grid_size)
 
 
@@ -689,45 +716,55 @@ class ImageBoardView(BoardView):
 					args and kwargs: accepted so the caller can define any 
 					tk.Canvas attributes when calling this class.
 		"""
-		self._IMAGES, self._POKEMON_IMAGES = ImageBoardView.instantiate_images()
+		self._rendered_images = {}
+		self._rendered_pokemon_images = {}
 		super().__init__(master, grid_size, board_width, *args, **kwargs)
-
 		
 
 
-	@staticmethod
-	def instantiate_images():
+	def instantiate_image(self, image_code):
 		"""Images need to be instantiated as a tkinter PhotoImage object before
 			they can be displayed on the window. This method does that and puts
 			the images into a dictionary for fast access.
 
-				Returns:
-					dict, dict: The dictionaries containing the images as
-					PhotoImage objects
-		"""
-		IMAGES = {
-			'0' : tk.PhotoImage(file = "images/zero_adjacent.gif"),
-			'1' : tk.PhotoImage(file = "images/one_adjacent.gif"),
-			'2' : tk.PhotoImage(file = "images/two_adjacent.gif"),
-			'3' : tk.PhotoImage(file = "images/three_adjacent.gif"),
-			'4' : tk.PhotoImage(file = "images/four_adjacent.gif"),
-			'5' : tk.PhotoImage(file = "images/five_adjacent.gif"),
-			'6' : tk.PhotoImage(file = "images/six_adjacent.gif"),
-			'7' : tk.PhotoImage(file = "images/seven_adjacent.gif"),
-			'8' : tk.PhotoImage(file = "images/eight_adjacent.gif"),
-			UNEXPOSED : tk.PhotoImage(file = "images/unrevealed.gif"),
-			FLAG : tk.PhotoImage(file = "images/pokeball.gif"),
-		}
+				Parameter:
+					image_path(str): The dictionary key corresponding to the image file path
 
-		POKEMON_IMAGES = {
-			0 : tk.PhotoImage(file = "images/pokemon_sprites/charizard.gif"), 
-			1 :	tk.PhotoImage(file = "images/pokemon_sprites/cyndaquil.gif"),
-			2 : tk.PhotoImage(file = "images/pokemon_sprites/pikachu.gif"),
-			3 :	tk.PhotoImage(file = "images/pokemon_sprites/psyduck.gif"),
-			4 :	tk.PhotoImage(file = "images/pokemon_sprites/togepi.gif"),
-			5 :	tk.PhotoImage(file = "images/pokemon_sprites/umbreon.gif")
-		}
-		return IMAGES, POKEMON_IMAGES
+				Returns:
+					(PhotoImage obj): The tkinter photo image object corresponding to 
+					the image_path that	has been resized to fit the board_width.
+		"""
+		# Memoize the process so that we don't have to render the same image hundreds of times
+		if image_code == POKEMON:
+			random_pokemon = random.randint(0, 5)
+			rendered_image = self._rendered_pokemon_images.get(random_pokemon, None)
+			if rendered_image is not None:
+				return rendered_image
+
+		else:
+			rendered_image = self._rendered_images.get(image_code, None)
+			if rendered_image is not None:
+				return rendered_image
+
+		# If the grid has a pokemon then we need to randomize the image
+		if image_code == POKEMON:
+			image_location = POKEMON_IMAGES.get(random_pokemon)
+		else:
+			image_location = IMAGES.get(image_code)
+
+
+		image = Image.open(image_location)
+		# Image needs to be resized to fit the board_width
+		image = image.resize(self.get_rect_dimensions())
+		# Convert the image to a tkinter photoimage object and return it
+		tk_rendered_image = ImageTk.PhotoImage(image)
+		# Save rendered image in hash for memoization
+		if image_code != POKEMON:
+			self._rendered_images[image_code] = tk_rendered_image
+		else:
+			self._rendered_pokemon_images[random_pokemon] = tk_rendered_image
+		
+		return tk_rendered_image
 
 
 	def draw_board(self, board):
@@ -748,10 +785,11 @@ class ImageBoardView(BoardView):
 				x, y = self.position_to_pixel((row, col))
 
 				if board[index] == POKEMON:
-					random_pokemon_img = self._POKEMON_IMAGES.get(random.randint(1, 5))
-					self.create_image(x, y, image = random_pokemon_img)
+					image = self.instantiate_image(POKEMON)
+					self.create_image(x, y, image = image)
 				else:
-					self.create_image(x, y, image = self._IMAGES.get(board[index]))
+					image = self.instantiate_image(board[index])
+					self.create_image(x, y, image = image)
 
 
 
@@ -897,9 +935,11 @@ def main():
 	root = tk.Tk()
 
 	root.title("Pokemon: Got 2 Find Them All!")
+	# If you want to change the size of the canvas, please see the constants at the top of the file.
 	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
 	# Window label heading
-	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3", font = ('', 22), fg = 'white')
+	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3",
+		font = ('', 22), fg = 'white')
 	label.pack(side = tk.TOP, fill = "x")
 
 
