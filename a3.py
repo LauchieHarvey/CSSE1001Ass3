@@ -174,7 +174,7 @@ class PokemonGame:
 		if play_again == "yes":
 			self.create_new_game()
 		else:
-			PokemonGame.verify_quit()
+			exit(0)
 
 
 
