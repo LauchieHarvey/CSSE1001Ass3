@@ -740,7 +740,6 @@ class ImageBoardView(BoardView):
 			rendered_image = self._rendered_pokemon_images.get(random_pokemon, None)
 			if rendered_image is not None:
 				return rendered_image
-
 		else:
 			rendered_image = self._rendered_images.get(image_code, None)
 			if rendered_image is not None:
@@ -752,13 +751,13 @@ class ImageBoardView(BoardView):
 		else:
 			image_location = IMAGES.get(image_code)
 
-
+		# Image needs to be resized to fit the board_width and converted to PhotoImage object
 		image = Image.open(image_location)
-		# Image needs to be resized to fit the board_width
 		image = image.resize(self.get_rect_dimensions())
-		# Convert the image to a tkinter photoimage object and return it
 		tk_rendered_image = ImageTk.PhotoImage(image)
-		# Save rendered image in hash for memoization
+
+		# Store rendered image in hash for memoization (and because tkinter 
+		# does not display images unless they're stored to memory for some reason)
 		if image_code != POKEMON:
 			self._rendered_images[image_code] = tk_rendered_image
 		else:
