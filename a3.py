@@ -174,15 +174,7 @@ class PokemonGame:
 		# Convert the rectangle to the corresponding index in the game board.
 		clicked_index = self._game_board.position_to_index(rect_clicked_position)
 
-		# If the user has run out of pokeballs, don't let them place another
-		if  (
-			self._task == TASK_TWO and
-			self._game_board.get_game()[clicked_index] == UNEXPOSED and
-			self._game_board.get_catches_left() == 0
-			):
-				return None
-		else:
-			self._game_board.flag_cell(clicked_index)
+		self._game_board.flag_cell(clicked_index)
 
 		# Update the attempted catches status bar variable
 		if self._task == TASK_TWO:
@@ -432,6 +424,13 @@ class BoardModel:
 		            game (str): The game string.
 		            index (int): The index in the game string where a flag is placed.
 	    """
+	    # If the user has run out of catch attempts, don't let them place another
+	    if  (
+	    		self._attempted_catches == self._number_of_pokemons and
+	    		self._game[index] == UNEXPOSED
+	    	):
+	    	return None
+
 	    if self._game[index] == FLAG:
 	        self.replace_character_at_index(index, UNEXPOSED)
 	        self._attempted_catches -= 1
