@@ -9,9 +9,9 @@ import random
 from PIL import ImageTk, Image
 
 # Constants you may wish to change:
-GRID_SIZE = 6
+GRID_SIZE = 8
 NUMBER_OF_POKEMONS = 6
-WINDOW_SIZE = 200
+WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
@@ -69,8 +69,8 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 	# IF YOU ARE LOOKING TO CHANGE THE GRID_SIZE &/OR THE BOARD_WIDTH 
-	# LOOK AT THE CONSTANTS AT THE TOP OF THE FILE :)
-	def __init__(self, master, grid_size, number_of_pokemons, task = TASK_TWO):
+	# 			LOOK AT THE CONSTANTS AT THE TOP OF THE FILE :)
+	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -174,7 +174,15 @@ class PokemonGame:
 		# Convert the rectangle to the corresponding index in the game board.
 		clicked_index = self._game_board.position_to_index(rect_clicked_position)
 
-		self._game_board.flag_cell(clicked_index)
+		# If the user has run out of pokeballs, don't let them place another
+		if  (
+			self._task == TASK_TWO and
+			self._game_board.get_game()[clicked_index] == UNEXPOSED and
+			self._game_board.get_catches_left() == 0
+			):
+				return None
+		else:
+			self._game_board.flag_cell(clicked_index)
 
 		# Update the attempted catches status bar variable
 		if self._task == TASK_TWO:
@@ -323,6 +331,7 @@ class BoardModel:
 	def get_game(self):
 		"""Getter method for game 'private' variable"""
 		return self._game
+
 	def get_grid_size(self):
 		"""Getter method for grid size private variable"""
 		return self._grid_size
@@ -351,6 +360,10 @@ class BoardModel:
 	def get_attempted_catches(self):
 		"""Getter method for the number of attempted catches (flagged cells)"""
 		return self._attempted_catches
+
+	def get_catches_left(self):
+		"""Getter method for the amount of catch attempts the user has left"""
+		return self._number_of_pokemons - self._attempted_catches
 
 	def set_attempted_catches(self, attempted_catches):
 		"""Setter method for the attempted catches varaible (flagged cells)"""
@@ -846,7 +859,8 @@ class StatusBar(tk.Frame):
 		self._attempted_catches_label.grid(row = 0, column = 1, sticky = tk.W)
 
 		# Pokeballs left label
-		self._pokeballs_left_label = tk.Label(self, text = f"{number_of_pokemons} pokeballs left")
+		self._pokeballs_left_label = tk.Label(self,\
+				text = f"{number_of_pokemons} pokeballs left")
 		self._pokeballs_left_label.grid(row = 1, column = 1, sticky = tk.W)
 
 		# Set time to auto update in the status bar.
@@ -890,7 +904,7 @@ class StatusBar(tk.Frame):
 		"""
 		self._attempted_catches_label['text'] = f"{attempted_catches} attempted catches"
 		self._pokeballs_left_label['text'] = \
-		f"{self._number_of_pokemons - attempted_catches} pokeballs left"
+			f"{self._number_of_pokemons - attempted_catches} pokeballs left"
 
 	def reset_time(self):
 		""" Setter method for the time elapsed variable"""
@@ -934,7 +948,7 @@ def main():
 	root = tk.Tk()
 
 	root.title("Pokemon: Got 2 Find Them All!")
-	# If you want to change the size of the canvas, please see the constants at the top of the file.
+	# If you want to change the canvas size, please see the constants at the top of the file.
 	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
 	# Window label heading
 	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3",
