@@ -10,7 +10,7 @@ from PIL import ImageTk, Image
 
 # Constants you may wish to change:
 GRID_SIZE = 4
-NUMBER_OF_POKEMONS = 6
+NUMBER_OF_POKEMONS = 10
 WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -178,7 +178,8 @@ class PokemonGame:
 
 		# Update the attempted catches status bar variable
 		if self._task == TASK_TWO:
-			self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
+			self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches(),
+				self._game_board.get_number_of_pokemons())
 
 		self._canvas.draw_board(self._game_board.get_game())
 
@@ -218,7 +219,8 @@ class PokemonGame:
 		# Reset status bar variables
 		self._status_bar.reset_time()
 		self._status_bar.set_time_running(True)
-		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches())
+		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches(),
+			self._game_board.get_number_of_pokemons())
 
 
 	def restart_game(self):
@@ -292,7 +294,7 @@ class PokemonGame:
 		self._game_board.set_game_string(game_string)
 		self._game_board.set_pokemon_locations(pokemon_locations)
 		self._game_board.set_attempted_catches(attempted_catches)
-		self._status_bar.set_pokeball_labels(attempted_catches)
+		self._status_bar.set_pokeball_labels(attempted_catches, num_of_pokemon)
 		self._canvas.set_grid_size(grid_size)
 		self._canvas.draw_board(self._game_board.get_game())
 		self._status_bar.reset_time()
@@ -812,7 +814,7 @@ class ImageBoardView(BoardView):
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
-	def __init__(self, master, game_instance, number_of_pokemons, *args, **kwargs):
+	def __init__(self, master, game_instance, num_of_pokemons, *args, **kwargs):
 		"""Constructor for the status bar frame
 
 				Parameters:
@@ -823,7 +825,6 @@ class StatusBar(tk.Frame):
 
 		"""
 		super().__init__(master, *args, **kwargs)
-		self._number_of_pokemons = number_of_pokemons
 		self._game_instance = game_instance
 		self._time_running = True
 
@@ -864,7 +865,7 @@ class StatusBar(tk.Frame):
 
 		# Pokeballs left label
 		self._pokeballs_left_label = tk.Label(self,\
-				text = f"{number_of_pokemons} pokeballs left")
+				text = f"{num_of_pokemons} pokeballs left")
 		self._pokeballs_left_label.grid(row = 1, column = 1, sticky = tk.W)
 
 		# Set time to auto update in the status bar.
@@ -901,14 +902,14 @@ class StatusBar(tk.Frame):
 			self.after(1000, self.update_label_time)
 
 
-	def set_pokeball_labels(self, attempted_catches):
+	def set_pokeball_labels(self, attempted_catches, num_of_pokemons):
 		"""Updates the "attempted catches" and "pokeballs left" labels
 				Parameters:
 					attempted_catches (int): the number of flags on the game board
 		"""
 		self._attempted_catches_label['text'] = f"{attempted_catches} attempted catches"
 		self._pokeballs_left_label['text'] = \
-			f"{self._number_of_pokemons - attempted_catches} pokeballs left"
+			f"{num_of_pokemons - attempted_catches} pokeballs left"
 
 	def reset_time(self):
 		""" Setter method for the time elapsed variable"""
