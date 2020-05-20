@@ -9,7 +9,7 @@ import random
 from PIL import ImageTk, Image
 
 # Constants you may wish to change:
-GRID_SIZE = 8
+GRID_SIZE = 4
 NUMBER_OF_POKEMONS = 6
 WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
@@ -293,6 +293,7 @@ class PokemonGame:
 		self._game_board.set_pokemon_locations(pokemon_locations)
 		self._game_board.set_attempted_catches(attempted_catches)
 		self._status_bar.set_pokeball_labels(attempted_catches)
+		self._canvas.set_grid_size(grid_size)
 		self._canvas.draw_board(self._game_board.get_game())
 		self._status_bar.reset_time()
 		if not self._status_bar.get_time_running():
@@ -353,9 +354,6 @@ class BoardModel:
 		"""Getter method for the number of attempted catches (flagged cells)"""
 		return self._attempted_catches
 
-	def get_catches_left(self):
-		"""Getter method for the amount of catch attempts the user has left"""
-		return self._number_of_pokemons - self._attempted_catches
 
 	def set_attempted_catches(self, attempted_catches):
 		"""Setter method for the attempted catches varaible (flagged cells)"""
@@ -731,8 +729,15 @@ class ImageBoardView(BoardView):
 		self._rendered_images = {}
 		self._rendered_pokemon_images = {}
 		super().__init__(master, grid_size, board_width, *args, **kwargs)
-		
 
+
+	def set_grid_size(self, grid_size):
+		"""Setter method for grid_size, used when loading a file of a different grid size"""
+		self._grid_size = grid_size
+		# Whenever the grid_size is reset, the images need to be resized, so we clear
+		# the cached image dictionaries. (benefits of encapsulation huh :))
+		self._rendered_images = {}
+		self._rendered_pokemon_images = {}
 
 	def instantiate_image(self, image_code):
 		"""Images need to be instantiated as a tkinter PhotoImage object before
