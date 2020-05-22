@@ -5,7 +5,6 @@ import tkinter.messagebox
 import tkinter.filedialog
 import csv
 import os.path
-import random
 from PIL import ImageTk, Image
 
 
@@ -816,7 +815,11 @@ class StatusBar(tk.Frame):
 
 				Parameters:
 					master (tk object): The root window.
-					number_of_pokemons(int): the number of hidden pokemons in the grass
+					numb_of_pokemons(int): the number of hidden pokemons in the grass
+					create_new_game(method pointer): Method pointer of the 
+					PokemonGame.create_game() method
+					restart_game(method pointer): Method pointer to the 
+					PokemonGame.restart_game() method
 					args and kwargs: accepted so the caller can define any 
 					tk.Frame attributes when instantiating a StatusBar object.
 
