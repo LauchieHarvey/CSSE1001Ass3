@@ -233,14 +233,15 @@ class PokemonGame:
 		""" Saves the current instance of the PokemonGame class as a .csv file
 		
 		.csv file is saved in the order below:
-			game_board_string, grid_size, number_of_pokemons, pokemon_locations 
+			game_board_string, grid_size, number_of_pokemons, attempted_catches,
+												pokemon_locations, time_elapsed
 		for example, a .csv might look like:
-			101♥~~101,3,3,"(3,4,5)"
+			101♥~~101,3,3,"(3,4,5),57"
 		"""
 		# Get key values from BoardModel class as a list
 		game_variables = [self._game_board.get_game(), self._game_board.get_grid_size(),
 		self._game_board.get_number_of_pokemons(), self._game_board.get_attempted_catches(),
-		self._game_board.get_pokemon_locations()]
+		self._game_board.get_pokemon_locations(), self._status_bar.get_time_elapsed()]
 
 		# While loop used to determine the name of the file :)
 		i = 0
@@ -266,12 +267,15 @@ class PokemonGame:
 
 		# If they picked a file type other than .csv then show error message and skip
 		if file_name is None:
-			tk.messagebox.showerror(title="Ooopsie ;(", message = "Please select a .csv file!!!")
+			tk.messagebox.showerror(title="Ooopsie ;(",
+					message = "Please select a .csv file!!!")
 			return None
 
 		# Get values from the file
 		with open(file_name, mode = 'r') as file:
 			reader = csv.reader(file, delimiter = ',')
+			# If there is something wrong with the file, this try/except block 
+			# will handle the error
 			try:
 				variables = [row for row in reader][0]
 				game_string = variables[0]
@@ -280,9 +284,10 @@ class PokemonGame:
 				attempted_catches = int(variables[3])
 				pokemon_locations = variables[4][1:-1].split(',')
 				pokemon_locations = [int(i) for i in pokemon_locations]
+				time_elapsed = int(variables[5])
 			except:
-				tk.messagebox.showerror(title="Ooopsie ;(", message = "There appears to be something \
-					wrong with the file!!!")
+				tk.messagebox.showerror(title="Ooopsie ;(", message = "There appears to be \
+something wrong with that file!!!")
 				return None
 
 		# Update the game to reflect the loaded file
@@ -293,7 +298,7 @@ class PokemonGame:
 		self._status_bar.set_pokeball_labels(attempted_catches, num_of_pokemon)
 		self._canvas.set_grid_size(grid_size)
 		self._canvas.draw_board(self._game_board.get_game())
-		self._status_bar.reset_time()
+		self._status_bar.reset_time(time_elapsed)
 		if not self._status_bar.get_time_running():
 			self._status_bar.set_time_running(True)
 
@@ -876,6 +881,10 @@ class StatusBar(tk.Frame):
 		"""Getter method for the time_running variable"""
 		return self._time_running
 
+	def get_time_elapsed(self):
+		"""Getter method for the time elapsed, used for save game"""
+		return self._time_elapsed
+
 
 	def set_time_running(self, time_running):
 		"""Setter method for whether the timer is counting up or not"""
@@ -910,9 +919,14 @@ class StatusBar(tk.Frame):
 		self._pokeballs_left_label['text'] = \
 			f"{num_of_pokemons - attempted_catches} pokeballs left"
 
-	def reset_time(self):
-		""" Setter method for the time elapsed variable"""
-		self._time_elapsed = 0
+	def reset_time(self, new_time = 0):
+		""" Setter method for the time elapsed variable
+
+				Parameter:
+					new_time(int): The time to reset the time_elapsed 
+					variable to in seconds, defaults to zero
+		"""
+		self._time_elapsed = new_time
 
 
 
