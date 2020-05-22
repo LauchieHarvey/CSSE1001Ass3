@@ -65,7 +65,7 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 
-	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO, board_width = 600):
+	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO, board_width = 400):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -629,7 +629,7 @@ class BoardView(tk.Canvas):
 		self._board_width = board_width
 
 		# Instantiate a canvas widget using the superclass
-		super().__init__(self._master, bg = "green", width = board_width,
+		super().__init__(self._master, width = board_width,
 		 height = board_width, *args, **kwargs)
 
 		self.draw_board(UNEXPOSED * grid_size ** 2)
