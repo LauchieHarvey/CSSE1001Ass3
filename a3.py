@@ -8,9 +8,8 @@ import os.path
 import random
 from PIL import ImageTk, Image
 
-# Constants you may wish to change:
-WINDOW_SIZE = 600
-# CONSTANTS you don't want to change:
+
+# CONSTANTS
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 UP = "up"
 DOWN = "down"
@@ -67,7 +66,7 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 
-	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO):
+	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO, board_width = 600):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -76,18 +75,18 @@ class PokemonGame:
 
 		if task == TASK_TWO:
 			# Instantiate the Status Bar.
-			self._status_bar = StatusBar(master, self, number_of_pokemons)
+			self._status_bar = StatusBar(master, number_of_pokemons, self.create_new_game, self.restart_game)
 			self._status_bar.pack(fill = 'x', side = tk.BOTTOM)
 			# Instantiate the canvas && position it in the master window.
-			self._canvas = ImageBoardView(self._master, grid_size, WINDOW_SIZE)
+			self._canvas = ImageBoardView(self._master, grid_size, board_width)
 			# Instantiate the file menu
 			self._file_menu = FileMenu(self._master, self)
 
 		else:
 			# Instantiate the canvas && position it in the master window.
-			self._canvas = BoardView(self._master, grid_size, WINDOW_SIZE)
+			self._canvas = BoardView(self._master, grid_size, board_width)
 		
-		self._canvas.pack(expand = True, anchor = tk.CENTER,)
+		self._canvas.pack(anchor = tk.CENTER,)
 
 		# Resize root window to fit all widgets.
 		master.geometry("")
@@ -707,7 +706,7 @@ class BoardView(tk.Canvas):
 		# X coordinate determined by column (position[1]):
 		top_left_pixel = (rect_width * position[1], rect_height * position[0])
 
-		center_pixel = (top_left_pixel[0] + rect_width / 2, top_left_pixel[1] + rect_height / 2)
+		center_pixel = (top_left_pixel[0] + rect_width // 2, top_left_pixel[1] + rect_height // 2)
 
 		return center_pixel
 
@@ -812,7 +811,7 @@ class ImageBoardView(BoardView):
 class StatusBar(tk.Frame):
 	""" Subclass of tk.Frame that holds the status bar of the PokemonGame"""
 
-	def __init__(self, master, game_instance, num_of_pokemons, *args, **kwargs):
+	def __init__(self, master, num_of_pokemons, create_new_game, restart_game, *args, **kwargs):
 		"""Constructor for the status bar frame
 
 				Parameters:
@@ -823,17 +822,16 @@ class StatusBar(tk.Frame):
 
 		"""
 		super().__init__(master, *args, **kwargs)
-		self._game_instance = game_instance
 		self._time_running = True
 
 		# New game button
 		self._new_game_button = tk.Button(self, text = "New Game", 
-			command = self._game_instance.create_new_game)
+			command = create_new_game)
 		self._new_game_button.grid(row = 0, column = 4, padx = 40, sticky = tk.E)
 
 		# Restart button
 		self._restart_game_button = tk.Button(self, text = "Restart Game", 
-			command = self._game_instance.restart_game)
+			command = restart_game)
 		self._restart_game_button.grid(row = 1, column = 4, padx = 40, sticky = tk.E)
 		
 		# Alarm clock image label
@@ -952,7 +950,7 @@ def main():
 
 	root.title("Pokemon: Got 2 Find Them All!")
 	# If you want to change the canvas size, please see the constants at the top of the file.
-	root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
+	root.geometry(f"{400}x{400}")
 	# Window label heading
 	label = tk.Label(root, text = "Pokemon: Got 2 Find Them All!", bg = "OrangeRed3",
 		font = ('', 22), fg = 'white')
