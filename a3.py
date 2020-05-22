@@ -9,8 +9,6 @@ import random
 from PIL import ImageTk, Image
 
 # Constants you may wish to change:
-GRID_SIZE = 4
-NUMBER_OF_POKEMONS = 10
 WINDOW_SIZE = 600
 # CONSTANTS you don't want to change:
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -68,8 +66,7 @@ class PokemonGame:
 		Controller class for the pokemon game.
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
-	# IF YOU ARE LOOKING TO CHANGE THE GRID_SIZE &/OR THE BOARD_WIDTH 
-	# 			LOOK AT THE CONSTANTS AT THE TOP OF THE FILE :)
+
 	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
@@ -218,7 +215,8 @@ class PokemonGame:
 
 		# Reset status bar variables
 		self._status_bar.reset_time()
-		self._status_bar.set_time_running(True)
+		if not self._status_bar.get_time_running():
+			self._status_bar.set_time_running(True)
 		self._status_bar.set_pokeball_labels(self._game_board.get_attempted_catches(),
 			self._game_board.get_number_of_pokemons())
 
@@ -961,7 +959,7 @@ def main():
 	label.pack(side = tk.TOP, fill = "x")
 
 
-	game_gui = PokemonGame(root, GRID_SIZE, NUMBER_OF_POKEMONS)
+	game_gui = PokemonGame(root)
 	root.mainloop()
 
 
