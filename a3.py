@@ -65,7 +65,7 @@ class PokemonGame:
 		instantiated like: PokemonGame(master, grid size=10, num pokemon=15, task=TASK_ONE)
 	"""
 
-	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_TWO, board_width = 400):
+	def __init__(self, master, grid_size = 6, number_of_pokemons = 7, task = TASK_ONE, board_width = 400):
 		""" Constructor method for the PokemonGame class"""
 		self._master = master
 		self._task = task
@@ -657,21 +657,18 @@ class BoardView(tk.Canvas):
 		for row in range(self._grid_size):
 			for col in range(self._grid_size):
 				index = self._grid_size * row + col
+				colour_dict = {UNEXPOSED : "green", FLAG : "red", POKEMON : "yellow"}
 
-				if board[index] == UNEXPOSED:
-					self.create_rectangle(col * rectangle_width, row * rectangle_height,
-						(col + 1) * rectangle_width, (row + 1) * rectangle_height)
-				elif board[index] == FLAG:
-					self.create_rectangle(col * rectangle_width, row * rectangle_height,
-						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "red")
-				elif board[index].isdigit():
+				if board[index].isdigit():
 					self.create_rectangle(col * rectangle_width, row * rectangle_height,
 						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "lawn green")
 					# create label of board[index] number at center pixel of rectangle
 					self.create_text(self.position_to_pixel((row, col)), text = str(board[index]))
-				elif board[index] == POKEMON:
+				else:
 					self.create_rectangle(col * rectangle_width, row * rectangle_height,
-						(col + 1) * rectangle_width, (row + 1) * rectangle_height, fill = "yellow")
+						(col + 1) * rectangle_width, (row + 1) * rectangle_height, 
+						fill = colour_dict.get(board[index]))
+
 
 
 	def get_rect_dimensions(self):
